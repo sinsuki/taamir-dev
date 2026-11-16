@@ -1,0 +1,12 @@
+[
+  {
+    "milestone": "1_simulator",
+    "tests_passed": 12,
+    "seconds": "0.68"
+  },
+  {
+    "milestone": "2_log_forensics",
+    "tests_passed": 49,
+    "seconds": "1.30"
+  }
+]

@@ -1,0 +1,100 @@
+{
+  "environment": {
+    "go": "1.22.2",
+    "os_arch": "linux/amd64",
+    "cpu": "Intel Xeon",
+    "gomaxprocs": 4,
+    "method": "median of five 1s go test -bench runs"
+  },
+  "tests_per_milestone": [
+    {
+      "milestone": "1 schema + rule engine",
+      "status": "shipped (PR #1, merged)",
+      "test_cases": 210,
+      "test_functions": 28
+    },
+    {
+      "milestone": "2 approval webhook",
+      "status": "shipped (PR #2, merged)",
+      "test_cases": 234,
+      "test_functions": 36
+    },
+    {
+      "milestone": "3 PII redaction",
+      "status": "shipped (PR #3, merged)",
+      "test_cases": 279,
+      "test_functions": 46
+    },
+    {
+      "milestone": "4 signed audit log",
+      "status": "shipped (PR #4, merged)",
+      "test_cases": 294,
+      "test_functions": 56
+    },
+    {
+      "milestone": "5 demo agent",
+      "status": "shipped (PR #5, merged)",
+      "test_cases": 296,
+      "test_functions": 58
+    }
+  ],
+  "median_ns_per_op": [
+    {
+      "path": "check: allow ($500.00)",
+      "ns_op": 6551,
+      "milestone": 1
+    },
+    {
+      "path": "check: needs_approval ($500.01)",
+      "ns_op": 6416,
+      "milestone": 1
+    },
+    {
+      "path": "approval sign + verify (no network)",
+      "ns_op": 3689,
+      "milestone": 2
+    },
+    {
+      "path": "proxy allow, localhost upstream",
+      "ns_op": 51058,
+      "milestone": 2
+    },
+    {
+      "path": "proxy approval round trip, localhost webhook",
+      "ns_op": 162754,
+      "milestone": 2
+    },
+    {
+      "path": "PII redaction, 572-byte prompt",
+      "ns_op": 101189,
+      "milestone": 3
+    },
+    {
+      "path": "audit append with fsync",
+      "ns_op": 472600,
+      "milestone": 4
+    },
+    {
+      "path": "audit verify 10000 entries",
+      "ns_op": 421053507,
+      "milestone": 4
+    }
+  ],
+  "notes": "Approval adds ~111,696 ns (difference of the two proxy medians, not a separate benchmark).",
+  "pii_corpus": {
+    "items": 27,
+    "target_pii": 12,
+    "must_survive": 25,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "known_misses": 3
+  },
+  "demo_runtime_seconds": {
+    "runs": [
+      0.027,
+      0.019
+    ],
+    "status": "PR #5 merged",
+    "note": "built binary, excludes compile"
+  }
+}

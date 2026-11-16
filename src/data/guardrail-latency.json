@@ -1,0 +1,42 @@
+[
+  {
+    "path": "check: allow ($500.00)",
+    "median_ns_op": 6551,
+    "milestone": 1
+  },
+  {
+    "path": "check: needs_approval ($500.01)",
+    "median_ns_op": 6416,
+    "milestone": 1
+  },
+  {
+    "path": "approval sign + verify (no network)",
+    "median_ns_op": 3689,
+    "milestone": 2
+  },
+  {
+    "path": "proxy allow localhost upstream",
+    "median_ns_op": 51058,
+    "milestone": 2
+  },
+  {
+    "path": "proxy approval round trip localhost webhook",
+    "median_ns_op": 162754,
+    "milestone": 2
+  },
+  {
+    "path": "PII redaction 572-byte prompt",
+    "median_ns_op": 101189,
+    "milestone": 3
+  },
+  {
+    "path": "audit append with fsync",
+    "median_ns_op": 472600,
+    "milestone": 4
+  },
+  {
+    "path": "audit verify 10000 entries",
+    "median_ns_op": 421053507,
+    "milestone": 4
+  }
+]

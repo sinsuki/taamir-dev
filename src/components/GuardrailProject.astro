@@ -1,0 +1,230 @@
+---
+import metrics from "../data/guardrail-metrics.json";
+import latency from "../data/guardrail-latency.json";
+import Stamp from "./Stamp.astro";
+import { guardrailPlain } from "../content/copy";
+import { guardrailDetails, guardrailRepo } from "../content/links";
+import { guardrailNotes } from "../content/measured";
+import { guardrailDiagram } from "../lib/diagram";
+import { stemChart } from "../lib/chart";
+import { formatInt, statusKind } from "../lib/format";
+
+const medians = metrics.median_ns_per_op;
+const byPath = (path: string) => {
+  const row = medians.find((item) => item.path === path);
+  if (!row) throw new Error(`Missing median: ${path}`);
+  return row;
+};
+
+const allow = byPath("check: allow ($500.00)");
+const needs = byPath("check: needs_approval ($500.01)");
+const sign = byPath("approval sign + verify (no network)");
+const proxyAllow = byPath("proxy allow, localhost upstream");
+const roundTrip = byPath("proxy approval round trip, localhost webhook");
+const redaction = byPath("PII redaction, 572-byte prompt");
+const append = byPath("audit append with fsync");
+const verify = byPath("audit verify 10000 entries");
+const approvalDiff = roundTrip.ns_op - proxyAllow.ns_op;
+
+const checkChart = stemChart([
+  {
+    label: allow.path,
+    lines: ["allow", "$500.00"],
+    value: allow.ns_op,
+    display: formatInt(allow.ns_op),
+    accent: true,
+  },
+  {
+    label: needs.path,
+    lines: ["needs approval", "$500.01"],
+    value: needs.ns_op,
+    display: formatInt(needs.ns_op),
+  },
+]);
+
+const midChart = stemChart([
+  {
+    label: proxyAllow.path,
+    lines: ["localhost allow"],
+    value: proxyAllow.ns_op,
+    display: formatInt(proxyAllow.ns_op),
+  },
+  {
+    label: redaction.path,
+    lines: ["redaction"],
+    value: redaction.ns_op,
+    display: formatInt(redaction.ns_op),
+  },
+  {
+    label: roundTrip.path,
+    lines: ["round trip"],
+    value: roundTrip.ns_op,
+    display: formatInt(roundTrip.ns_op),
+  },
+  {
+    label: append.path,
+    lines: ["fsync append"],
+    value: append.ns_op,
+    display: formatInt(append.ns_op),
+    accent: true,
+  },
+]);
+
+const diagram = guardrailDiagram();
+const [demoA, demoB] = metrics.demo_runtime_seconds.runs;
+if (demoA === undefined || demoB === undefined) throw new Error("Missing demo runs");
+
+const milestones = metrics.tests_per_milestone.map((row) => {
+  const detail = guardrailDetails[row.milestone];
+  if (!detail) throw new Error(`Missing milestone copy: ${row.milestone}`);
+  const prNumber = detail.pr.match(/\/pull\/(\d+)/)?.[1];
+  if (!prNumber || row.test_cases === undefined || row.test_functions === undefined) {
+    throw new Error(`Incomplete milestone: ${row.milestone}`);
+  }
+  return { ...row, ...detail, prNumber, kind: statusKind(row.status) };
+});
+
+const latencyExcerpt = latency
+  .filter((row) => row.milestone === 1 || row.path.startsWith("audit"))
+  .map((row) => `${row.path},${row.median_ns_op},${row.milestone}`)
+  .join("\n");
+
+const env = metrics.environment;
+const corpus = metrics.pii_corpus;
+---
+
+<p class="plain" id="guardrail">{guardrailPlain[0]}</p>
+<p class="plain">{guardrailPlain[1]}</p>
+<h3 class="project-title">Deterministic guardrail and audit proxy</h3>
+<p>
+  <a href={guardrailRepo}>guardrail-proxy</a>
+</p>
+<p>
+  I wrote a Go proxy that sits between an LLM agent and financial APIs. It checks every tool call
+  against a strict schema and a deterministic rule before anything reaches the real API. The code
+  uses the Go 1.22 standard library and no third-party dependencies.
+</p>
+<p>
+  The schema rejects unknown tools and fields, missing or duplicate fields, and wrong types before
+  any rule runs. Money is integer cents parsed straight from the JSON text. Floats are rejected, so
+  $500.00 and $500.01 stay distinct. Transfers over $500 need human approval, and only an allowed
+  call is forwarded. The request body limit is {guardrailNotes.bodyLimit}.
+</p>
+<p>
+  The approval webhook signs requests and responses with HMAC-SHA256. Each approval is single-use,
+  tied to the SHA-256 hash of the exact call, and times out to deny after
+  {guardrailNotes.approvalTimeout}, so a captured approval cannot be replayed against a different
+  amount.
+</p>
+<p>
+  PII redaction covers emails, phones, SSNs, Luhn-checked card numbers, ABA routing numbers,
+  labeled account numbers, and mod-97 IBANs. Each value becomes a stable typed placeholder, and the
+  proxy restores the originals in the model's reply. The mapping is never sent out or logged. On the
+  labeled corpus there were {corpus.false_positives} false positives on {corpus.must_survive} strings
+  that must survive, {corpus.false_negatives} false negatives on {corpus.target_pii} target PII
+  strings, and {corpus.known_misses} known misses: {guardrailNotes.knownMisses}.
+</p>
+<p>
+  The audit log is append-only and hash-chained, signed with Ed25519. Each entry records a tool
+  call (as a hash, never raw arguments), a rule decision, an approval, a redaction (counts only), or
+  a forward. A signed tip file catches truncation, and a verify command points to the first tampered
+  entry. The log uses in-process and file locks so more than one writer can append, and it can
+  resume after a restart. The suite includes edit, delete, reorder, truncate, and wrong-key tamper
+  cases.
+</p>
+<p>
+  <code>make demo</code> runs every guardrail end to end: an allowed transfer, an approved and a
+  denied $750 transfer, a rejected float amount, a PII round trip, and an audit verify that catches
+  a one-byte tamper. The built demo binary ran end to end in {demoA} s and {demoB} s of real time,
+  {guardrailNotes.demoCompile}. {guardrailNotes.demoNotABenchmark} GitHub Actions CI runs tests, vet,
+  and the race detector.
+</p>
+<p class="note">
+  Project notes. The $750 transfer is a step in the demo, not a second rule. The approval line in
+  the notes is still $500. Demo times: {metrics.demo_runtime_seconds.note}.
+  {guardrailNotes.demoNotABenchmark}
+</p>
+
+<h3 class="role-title">Milestones</h3>
+{
+  milestones.map((row) => (
+    <p class="milestone">
+      <Stamp status={row.kind} />
+      {row.summary}{" "}
+      {row.milestone.startsWith("5") ? `${row.test_cases} leaf tests` : `${row.test_cases} test cases`},{" "}
+      {row.test_functions} test functions. <a href={row.pr}>PR #{row.prNumber}</a>
+    </p>
+  ))
+}
+<p class="note">
+  guardrail-metrics.json. Counts are the suite size recorded at that milestone. Every milestone is
+  shipped on its own pull request. {env.method}. Go {env.go} · {env.os_arch} · {env.cpu} ·
+  GOMAXPROCS={env.gomaxprocs}.
+</p>
+
+<figure class="figure">
+  <div aria-hidden="true" set:html={diagram} />
+  <figcaption>Fig. 1 — Guardrail proxy, each branch in reading order. Every node is shipped.</figcaption>
+</figure>
+
+<figure class="figure">
+  <div aria-hidden="true" set:html={checkChart} />
+  <div class="sr-only">
+  <table>
+    <caption>Median check latency in nanoseconds per operation</caption>
+    <tbody>
+      <tr><th scope="row">{allow.path}</th><td>{formatInt(allow.ns_op)} ns/op</td></tr>
+      <tr><th scope="row">{needs.path}</th><td>{formatInt(needs.ns_op)} ns/op</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <figcaption>Fig. 2 — Median check latency, ns/op (lower is better)</figcaption>
+</figure>
+<p class="note">
+  go test -bench · Go {env.go} · {env.os_arch} · {env.cpu} · GOMAXPROCS={env.gomaxprocs}. {env.method}.
+  {guardrailNotes.checkAllocs} allocations and {guardrailNotes.checkBytes} bytes per check.
+  {guardrailNotes.checksPerSecSentence} {guardrailNotes.checksCaveat}
+</p>
+
+<figure class="figure">
+  <div aria-hidden="true" set:html={midChart} />
+  <div class="sr-only">
+  <table>
+    <caption>Proxy, redaction, and audit append medians</caption>
+    <tbody>
+      <tr><th scope="row">{proxyAllow.path}</th><td>{formatInt(proxyAllow.ns_op)} ns/op</td></tr>
+      <tr><th scope="row">{redaction.path}</th><td>{formatInt(redaction.ns_op)} ns/op</td></tr>
+      <tr><th scope="row">{roundTrip.path}</th><td>{formatInt(roundTrip.ns_op)} ns/op</td></tr>
+      <tr><th scope="row">{append.path}</th><td>{formatInt(append.ns_op)} ns/op</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <figcaption>
+    Fig. 3 — Proxy, redaction, and audit append, median ns/op (lower is better). Audit verify is not
+    on this chart.
+  </figcaption>
+</figure>
+<p class="note">
+  {metrics.notes} {guardrailNotes.approvalUsSentence} {guardrailNotes.approvalUsCaveat} Difference
+  computed from the two proxy medians: {formatInt(approvalDiff)} ns. Redaction: {guardrailNotes.redactionAllocs}
+  allocs/op on a 572-byte prompt. Append, with fsync of both the log and the tip file: {guardrailNotes.appendAllocs}
+  allocs/op.
+</p>
+<p>
+  Signing and checking one approval, with no network, takes a median of {formatInt(sign.ns_op)} ns.
+  {guardrailNotes.approvalUsSentence} {guardrailNotes.approvalUsCaveat}
+</p>
+<p>
+  {guardrailNotes.checksPerSecSentence} {guardrailNotes.checksCaveat} For the first milestone,
+  {guardrailNotes.vetSentence}
+</p>
+<p>
+  {guardrailNotes.verifySentence} The bench record for that verify is {formatInt(verify.ns_op)} ns.
+  It is left off the chart because it is not on the same scale as the other medians.
+</p>
+<p class="note">
+  Project notes for 421.05 ms, the allocation counts, the body limit, and the checks-per-second
+  line. The nanosecond medians are the JSON values. {guardrailNotes.checksCaveat}
+</p>
+<pre><code>{latencyExcerpt}</code></pre>
+<p class="note">Latency table, copied as recorded. The last line is the verify median, stated above and not plotted.</p>
