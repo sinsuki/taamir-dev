@@ -32,8 +32,8 @@ const { items } = Astro.props;
             <p class:list={["shelf-pitch", `pitch-${index}`]} id={`pitch-${item.slug}`}>{item.pitch}</p>
           ))}
         </div>
+        <div class="shelf-plank" aria-hidden="true"></div>
       </div>
-      <div class="shelf-plank" aria-hidden="true"></div>
     </section>
   )
 }

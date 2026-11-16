@@ -793,15 +793,23 @@ input.range-hue {
 
 .run-list {
   font-family: "Martian Mono", ui-monospace, monospace;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-synthesis: none;
+  font-variation-settings: "wght" 400, "wdth" 100;
   font-variant-numeric: tabular-nums;
+  font-variant-ligatures: none;
   letter-spacing: 0;
-  font-feature-settings: "calt" 0, "liga" 0;
+  font-feature-settings: "calt" 0, "liga" 0, "clig" 0, "dlig" 0;
+  list-style-position: inside;
+  margin: 0.35rem 0 0;
+  padding-inline-start: 0.15rem;
 }
 
 .palette-result,
 #palette-result { margin: 0.75rem 0 0; }
 
-#palette-result ol { margin: 0.35rem 0 0; padding-inline-start: 1.2rem; }
+#palette-result ol { margin: 0.35rem 0 0; padding-inline-start: 0.15rem; list-style-position: inside; }
 #palette-result li { font-variant-numeric: tabular-nums; }
 
 #site-menu { display: none; }
@@ -1040,9 +1048,13 @@ input.range-hue {
 .shelf-stage {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 1.25rem;
+  grid-template-areas: "spines" "rail" "caption";
+  row-gap: 0;
   align-items: end;
 }
+.spine-row { grid-area: spines; }
+.shelf-plank { grid-area: rail; }
+.shelf-caption { grid-area: caption; }
 .shelf-caption {
   position: relative;
   height: 4.75rem;
@@ -1062,7 +1074,7 @@ input.range-hue {
 }
 .shelf-plank {
   height: 6px;
-  margin-top: 1rem;
+  margin-top: 0;
   background: #8a6420;
   background: oklch(from var(--ochre) calc(l - 0.25) c h);
 }
@@ -1160,11 +1172,10 @@ input.range-hue {
 .spine-row {
   display: flex;
   align-items: flex-end;
-  gap: 0.6rem;
+  gap: clamp(0.35rem, 1.5vw, 0.6rem);
   min-width: 0;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  padding-bottom: 0.25rem;
+  overflow: visible;
+  padding-bottom: 0;
 }
 
 .spine {
@@ -1178,11 +1189,11 @@ input.range-hue {
   color: inherit;
   padding: 0.7rem 0.3rem;
 }
-.spine-0 { width: 56px; height: 180px; }
-.spine-1 { width: 64px; height: 210px; }
-.spine-2 { width: 72px; height: 230px; }
-.spine-3 { width: 60px; height: 196px; }
-.spine-4 { width: 68px; height: 220px; }
+.spine-0 { width: clamp(48px, 14.4vw, 56px); height: 180px; }
+.spine-1 { width: clamp(54px, 16.5vw, 64px); height: 210px; }
+.spine-2 { width: clamp(60px, 18.6vw, 72px); height: 230px; }
+.spine-3 { width: clamp(50px, 15.5vw, 60px); height: 196px; }
+.spine-4 { width: clamp(56px, 17.5vw, 68px); height: 220px; }
 .spine-0::before, .spine-2::before, .spine-4::before,
 .spine-1::after, .spine-3::after {
   content: "";
@@ -1346,7 +1357,11 @@ html.paused .eq i { animation: none; }
 }
 
 @media (min-width: 800px) {
-  .shelf-stage { grid-template-columns: auto minmax(14rem, 1fr); column-gap: 2rem; }
+  .shelf-stage {
+    grid-template-columns: auto minmax(14rem, 1fr);
+    grid-template-areas: "spines caption" "rail rail";
+    column-gap: 2rem;
+  }
 }
 @media (min-width: 640px) {
   .field-index { grid-template-columns: repeat(4, minmax(0, 1fr)); }
