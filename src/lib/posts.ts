@@ -7,6 +7,10 @@ export async function getPublished(): Promise<Post[]> {
   return posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 }
 
+export function countLabel(count: number, one: string, many: string): string {
+  return `${count} ${count === 1 ? one : many}`;
+}
+
 export function readingMinutes(body: string | undefined): number {
   const words = (body ?? "").trim().split(/\s+/).filter(Boolean).length;
   if (words === 0) return 1;

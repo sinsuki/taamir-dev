@@ -1,6 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { formatDay, getPublished, readingMinutes } from "../../lib/posts";
+import { countLabel, formatDay, getPublished, readingMinutes } from "../../lib/posts";
 import { sparkline } from "../../lib/spark";
 
 const posts = await getPublished();
@@ -26,7 +26,7 @@ const spark = sparkline([...counts.values()]);
       ) : (
         <p>
           <span set:html={spark} />
-          {posts.length} posts since {firstYear}
+          {countLabel(posts.length, "post", "posts")} since {firstYear}
         </p>
       )
     }

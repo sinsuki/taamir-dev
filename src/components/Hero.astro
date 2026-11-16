@@ -1,5 +1,5 @@
 ---
-import { getPublished } from "../lib/posts";
+import { countLabel, getPublished } from "../lib/posts";
 import { email, intro, introNote, jobs, showShelf, shelfItems } from "../content/site";
 import { projects } from "../content/projects";
 
@@ -7,7 +7,7 @@ const posts = await getPublished();
 const rows = [
   { numeral: "I", label: "Work", href: "#work", count: `${jobs.length} roles` },
   { numeral: "II", label: "Projects", href: "#projects", count: `${projects.length} builds` },
-  { numeral: "III", label: "Writing", href: "#writing", count: `${posts.length} posts` },
+  { numeral: "III", label: "Writing", href: "#writing", count: countLabel(posts.length, "post", "posts") },
   ...(showShelf
     ? [{ numeral: "IV", label: "Play", href: "#play", count: `${shelfItems.length} objects` }]
     : []),

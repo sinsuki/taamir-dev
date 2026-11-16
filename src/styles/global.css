@@ -396,6 +396,7 @@ main > .hero,
 }
 
 .air-title { flex: 0 1 auto; }
+.air-sep { flex: none; white-space: pre; }
 .air-artist { flex: 0 100 auto; font-weight: 400; opacity: 0.8; }
 .air-ago { flex: none; white-space: nowrap; color: var(--ochre); }
 
@@ -662,6 +663,26 @@ main > .hero,
 }
 
 .writing-list { list-style: none; margin: 1rem 0; padding: 0; }
+.writing-list .post-row {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "date time"
+    "title title"
+    "summary summary";
+}
+.writing-list .post-date { grid-area: date; }
+.writing-list .post-time { grid-area: time; justify-self: end; }
+.writing-list .post-title { grid-area: title; min-width: 0; }
+.writing-list .post-meta { grid-area: summary; min-width: 0; }
+
+@media (min-width: 900px) {
+  .writing-list .post-row {
+    grid-template-columns: 5.5rem minmax(18ch, 1fr) minmax(0, 1.6fr) auto;
+    grid-template-areas: "date title summary time";
+    align-items: baseline;
+  }
+}
+
 .post-row {
   display: grid;
   gap: 0.2rem 1rem;
@@ -745,13 +766,18 @@ html.paused .eq i { animation: none; }
 .tags legend { font-family: "Martian Mono", monospace; font-size: 0.75rem; }
 .tag-radios { display: none; }
 
+.post {
+  max-width: 65ch;
+  min-width: 0;
+  padding-block-start: 2rem;
+}
+.post :is(h1, h2, h3) { text-wrap: balance; max-width: 65ch; }
 .post-body {
-  max-width: min(68ch, 100%);
+  max-width: 65ch;
   min-width: 0;
   font-size: 1.1875rem;
   line-height: 1.65;
 }
-.post-body :is(h2, h3) { font-family: "Schibsted Grotesk", Arial, sans-serif; font-weight: 650; }
 .post-body pre {
   max-width: 100%;
   min-width: 0;
@@ -796,7 +822,7 @@ html.paused .eq i { animation: none; }
   }
 
   .band { display: block; padding-inline: 1.25rem; }
-  .hero, .block { padding-inline: 1.25rem; }
+  .hero, .block, .post { padding-inline: 1.25rem; }
   .hero { display: block; }
   .sun { width: 9rem; height: 9rem; top: -3.5rem; right: -3.5rem; }
   .row-main { grid-template-columns: 1fr auto; }
