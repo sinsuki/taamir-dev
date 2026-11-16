@@ -1,0 +1,72 @@
+---
+import Base from "../../layouts/Base.astro";
+---
+
+<Base title="Tic-tac-toe · Play" description="A perfect game. Turn on its thinking to see each square's score.">
+  <article class="play-desk block">
+    <header data-vt="obj-tic-tac-toe">
+      <p class="kicker">No. 02</p>
+      <h1 class="display">Tic-tac-toe</h1>
+      <p>You are X. The reply never loses. Thinking shades each empty square by its score.</p>
+    </header>
+    <p><button type="button" id="think" aria-pressed="false">Show its thinking</button> <button type="button" id="again">Again</button></p>
+    <div id="board" class="ttt" role="grid" aria-label="Tic-tac-toe"></div>
+    <p id="note" aria-live="polite"></p>
+    <p><a href="/#play">Back to the shelf</a></p>
+  </article>
+</Base>
+<script>
+  import { bestMove, scores, winner } from "../../lib/ttt.mjs";
+
+  let board = Array(9).fill("");
+  let show = false;
+  try {
+    const saved = JSON.parse(localStorage.getItem("tic-tac-toe") || "");
+    if (Array.isArray(saved.board) && saved.board.length === 9) board = saved.board;
+    show = saved.show === true;
+  } catch { /* a new game */ }
+  const root = document.getElementById("board")!;
+  const note = document.getElementById("note")!;
+  const think = document.getElementById("think") as HTMLButtonElement;
+  const buttons: HTMLButtonElement[] = [];
+
+  function save() {
+    try { localStorage.setItem("tic-tac-toe", JSON.stringify({ board, show })); } catch { /* stays on the page */ }
+  }
+  function paint() {
+    const state = winner(board);
+    const thinking = show && !state ? scores(board) : [];
+    buttons.forEach((button, index) => {
+      button.textContent = board[index] || (show && thinking[index] != null ? String(thinking[index]) : "");
+      if (show && thinking[index] != null) button.dataset.score = String(thinking[index]);
+      else delete button.dataset.score;
+      button.disabled = Boolean(board[index] || state);
+    });
+    think.setAttribute("aria-pressed", String(show));
+    think.textContent = show ? "Hide its thinking" : "Show its thinking";
+    note.textContent = state === "draw" ? "Draw." : state === "X" ? "You win." : state === "O" ? "It wins." : "Your move.";
+  }
+  function play(index: number) {
+    if (board[index] || winner(board)) return;
+    board[index] = "X";
+    if (!winner(board)) {
+      const reply = bestMove(board);
+      if (reply >= 0) board[reply] = "O";
+    }
+    save();
+    paint();
+  }
+  for (let index = 0; index < 9; index += 1) {
+    const button = document.createElement("button");
+    button.type = "button";
+    const row = Math.floor(index / 3) + 1;
+    const col = (index % 3) + 1;
+    button.setAttribute("aria-label", `Row ${row} column ${col}`);
+    button.addEventListener("click", () => play(index));
+    buttons.push(button);
+    root.append(button);
+  }
+  think.addEventListener("click", () => { show = !show; save(); paint(); });
+  document.getElementById("again")!.addEventListener("click", () => { board = Array(9).fill(""); save(); paint(); });
+  paint();
+</script>

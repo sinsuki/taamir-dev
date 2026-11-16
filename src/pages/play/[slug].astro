@@ -3,7 +3,10 @@ import Base from "../../layouts/Base.astro";
 import { shelfItems } from "../../content/site";
 
 export function getStaticPaths() {
-  return shelfItems.map((item) => ({ params: { slug: item.slug }, props: { item } }));
+  const ownPages = new Set(["sudoku", "tic-tac-toe", "palette-lab", "cron", "desk-plant"]);
+  return shelfItems
+    .filter((item) => !ownPages.has(item.slug))
+    .map((item) => ({ params: { slug: item.slug }, props: { item } }));
 }
 
 const { item } = Astro.props;
