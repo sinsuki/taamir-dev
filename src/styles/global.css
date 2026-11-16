@@ -448,7 +448,7 @@ main > .hero,
 
 .menu-button, .menu-fallback { margin-inline-start: auto; }
 
-.menu-pop, .help-pop, .now-pop {
+.menu-pop, .help-pop, .now-pop, .palette {
   background: var(--paper);
   color: var(--ink);
   border: 1px solid var(--rule);
@@ -463,6 +463,30 @@ main > .hero,
 }
 
 .menu-pop a, .menu-fallback a { display: block; padding: 0.55rem 0; color: inherit; }
+
+.palette {
+  inset: 4.5rem 1.25rem auto;
+  width: min(36rem, calc(100vw - 2.5rem));
+  margin-inline: auto;
+  max-height: min(70vh, 28rem);
+  overflow: auto;
+}
+
+.palette input {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--rule);
+  background: var(--sunk);
+  color: var(--ink);
+  font: inherit;
+}
+
+.palette-result,
+#palette-result { margin: 0.75rem 0 0; }
+
+#palette-result ol { margin: 0.35rem 0 0; padding-inline-start: 1.2rem; }
+#palette-result li { font-variant-numeric: tabular-nums; }
 
 #site-menu { display: none; }
 #site-menu:popover-open { display: block; }
