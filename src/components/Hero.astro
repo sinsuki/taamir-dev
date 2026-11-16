@@ -11,7 +11,7 @@ const rows = [
   ...(showShelf
     ? [{ numeral: "IV", label: "Play", href: "#play", count: `${shelfItems.length} objects` }]
     : []),
-  { numeral: "V", label: "Contact", href: "#contact", count: "email" },
+  { numeral: showShelf ? "V" : "IV", label: "Contact", href: "#contact", count: "email" },
 ];
 ---
 

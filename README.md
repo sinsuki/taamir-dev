@@ -4,7 +4,7 @@ Personal site for Taamir Khan. Astro builds a static site into `dist/` for Cloud
 
 ## Build
 
-Node.js 22 or newer.
+Node.js 22. `.node-version` pins that for Cloudflare Pages.
 
 ```sh
 npm install
@@ -39,9 +39,9 @@ MDX can import `Callout`, `Sidenote`, `Figure`, and `Embed` from `src/components
 
 The on-air strip calls `GET /api/now-playing`. `src/pages/api/now-playing.ts` is the static fallback and answers `{"state":"off"}`. On Cloudflare Pages, `functions/api/now-playing.ts` handles that URL instead.
 
-Create a KV namespace and bind it as `SPOTIFY_KV`. The refresh token is stored under the key `refresh_token`. There is no client secret. Set `SPOTIFY_CLIENT_ID` to `90467d70b7ac4d80bf3ed272b25861a4` (already in `wrangler.toml`). Set `NOW_PLAYING_ENABLED` to `false` to force `{"state":"off"}`.
+`wrangler.toml` is the Pages config. `SPOTIFY_CLIENT_ID` is `90467d70b7ac4d80bf3ed272b25861a4`. The KV binding `SPOTIFY_KV` is only under `env.production` (`f18709df6f6340c3a018710d035c021f`), so a preview deployment has no KV namespace. There is no client secret. Set `NOW_PLAYING_ENABLED` to `false` to force `{"state":"off"}`.
 
-Open `https://taamir.dev/api/spotify/login` once. Spotify returns to `https://taamir.dev/api/spotify/callback`, which stores the refresh token and shows Connected. The page does not include the token.
+The refresh token is stored under the key `refresh_token`. Open `https://taamir.dev/api/spotify/login` once. Spotify returns to `https://taamir.dev/api/spotify/callback`, which stores the token and shows Connected. The page does not include the token. If `refresh_token` is already in KV, the callback shows Already connected and does not replace it. To reconnect, delete that key by hand, then run login again. A missing or mismatched `state` returns 400.
 
 When `/api/now-playing` returns `{"state":"off"}`, the strip hides.
 

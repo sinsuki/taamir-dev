@@ -51,7 +51,7 @@ export const jobs: Role[] = [
     title: "SDE Intern, Fire TV",
     line: "A summer building Fire TV recommendations.",
     bullets: [
-      "I built a Fire TV model with 80–85% accuracy across 35 million users.",
+      "I built a Fire TV model with 80–85% accuracy across 35M+ users.",
       "I wrote Spark pipelines that preload screens and recommend content.",
     ],
   },
