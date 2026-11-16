@@ -1,6 +1,6 @@
 ---
 import type { Post } from "../lib/posts";
-import { formatDay, readingMinutes } from "../lib/posts";
+import { countLabel, formatDay, readingMinutes } from "../lib/posts";
 import Arrow from "./Arrow.astro";
 
 interface Props {
@@ -12,7 +12,7 @@ const latest = posts.slice(0, 3);
 ---
 
 <section class="band band-sunk" id="writing" aria-labelledby="writing-title">
-  <p class="kicker">III · {posts.length} posts</p>
+  <p class="kicker">III · {countLabel(posts.length, "post", "posts")}</p>
   <h2 id="writing-title" class="display">Writing</h2>
   {
     posts.length === 0 ? (
@@ -24,10 +24,10 @@ const latest = posts.slice(0, 3);
         {latest.map((post) => (
           <li>
             <a class="post-row" href={`/blog/${post.id}`}>
-              <span class="mono" data-vt={`date-${post.id}`}>{formatDay(post.data.date)}</span>
+              <span class="mono post-date" data-vt={`date-${post.id}`}>{formatDay(post.data.date)}</span>
               <span class="post-title" data-vt={`post-${post.id}`}>{post.data.title}</span>
               <span class="post-meta">{post.data.summary}</span>
-              <span class="mono">{readingMinutes(post.body)} min</span>
+              <span class="mono post-time">{readingMinutes(post.body)} min</span>
             </a>
           </li>
         ))}

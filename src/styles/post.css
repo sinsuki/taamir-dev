@@ -6,7 +6,23 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Fraunces Text";
+  src: url("../fonts/fraunces-text.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 .post-body em { font-style: italic; }
+
+.post-body :is(h2, h3) {
+  font-family: "Fraunces Text", Fraunces, Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(1.6rem, 1.3rem + 0.8vw, 2rem);
+  line-height: 1.15;
+  text-wrap: balance;
+}
 
 .post-body .tok-foreground,
 .post-body .tok-token-punctuation,

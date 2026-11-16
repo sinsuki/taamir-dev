@@ -134,14 +134,16 @@ async function refreshNow(): Promise<void> {
 
 function paintNow(root: HTMLElement, payload: Payload): void {
   const trackTitle = root.querySelector<HTMLElement>("[data-air-title]");
+  const trackSep = root.querySelector<HTMLElement>("[data-air-sep]");
   const trackArtist = root.querySelector<HTMLElement>("[data-air-artist]");
   const trackAgo = root.querySelector<HTMLElement>("[data-air-ago]");
-  if (!trackTitle || !trackArtist || !trackAgo) {
+  if (!trackTitle || !trackSep || !trackArtist || !trackAgo) {
     throw new Error("The on-air strip is missing its title, artist, or time");
   }
   if (payload.state !== "playing" && payload.state !== "recent") {
     root.dataset.state = "off";
     trackTitle.textContent = "Radio silence. Back soon.";
+    trackSep.hidden = true;
     trackArtist.textContent = "";
     trackAgo.textContent = "";
     return;
@@ -150,7 +152,8 @@ function paintNow(root: HTMLElement, payload: Payload): void {
   const label = root.querySelector("[data-air-label]");
   if (label) label.textContent = payload.state === "playing" ? "On air" : "Last played";
   trackTitle.textContent = payload.title ?? "";
-  trackArtist.textContent = payload.artist ? ` — ${payload.artist}` : "";
+  trackSep.hidden = !payload.artist;
+  trackArtist.textContent = payload.artist ?? "";
   trackAgo.textContent = payload.state === "recent" ? ` · ${ago(payload.playedAgoMinutes)}` : "";
   const link = root.querySelector<HTMLAnchorElement>("[data-air-url]");
   const pop = document.querySelector<HTMLAnchorElement>("[data-pop-link]");
