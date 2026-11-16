@@ -1,0 +1,46 @@
+[
+  {
+    "fault": "latency_spike",
+    "wall_seconds": "0.0239",
+    "spans": 120,
+    "logs": 120,
+    "metric_points": 28,
+    "traces_bytes": 43584,
+    "logs_bytes": 26592,
+    "metrics_bytes": 7373,
+    "ground_truth_bytes": 463
+  },
+  {
+    "fault": "error_rate_spike",
+    "wall_seconds": "0.0257",
+    "spans": 120,
+    "logs": 120,
+    "metric_points": 28,
+    "traces_bytes": 44544,
+    "logs_bytes": 26784,
+    "metrics_bytes": 7360,
+    "ground_truth_bytes": 473
+  },
+  {
+    "fault": "dependency_timeout",
+    "wall_seconds": "0.0291",
+    "spans": 120,
+    "logs": 136,
+    "metric_points": 28,
+    "traces_bytes": 45048,
+    "logs_bytes": 30308,
+    "metrics_bytes": 7373,
+    "ground_truth_bytes": 458
+  },
+  {
+    "fault": "bad_deploy",
+    "wall_seconds": "0.0231",
+    "spans": 120,
+    "logs": 120,
+    "metric_points": 28,
+    "traces_bytes": 45344,
+    "logs_bytes": 26976,
+    "metrics_bytes": 7361,
+    "ground_truth_bytes": 454
+  }
+]

@@ -1,0 +1,15 @@
+---
+interface Props {
+  status: "shipped" | "planned" | "in-progress";
+}
+
+const labels = {
+  shipped: "Shipped",
+  planned: "Planned",
+  "in-progress": "In progress",
+} as const;
+
+const { status } = Astro.props;
+---
+
+<span class={`stamp stamp-${status}`}>{labels[status]}</span>

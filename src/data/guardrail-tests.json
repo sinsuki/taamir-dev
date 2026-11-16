@@ -1,0 +1,27 @@
+[
+  {
+    "milestone": "1 schema + rule engine",
+    "status": "shipped (PR #1 merged)",
+    "test_cases": 210
+  },
+  {
+    "milestone": "2 approval webhook",
+    "status": "shipped (PR #2 merged)",
+    "test_cases": 234
+  },
+  {
+    "milestone": "3 PII redaction",
+    "status": "shipped (PR #3 merged)",
+    "test_cases": 279
+  },
+  {
+    "milestone": "4 signed audit log",
+    "status": "shipped (PR #4 merged)",
+    "test_cases": 294
+  },
+  {
+    "milestone": "5 demo agent",
+    "status": "shipped (PR #5 merged)",
+    "test_cases": 296
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "name": "taamir-dev",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && node scripts/check-content.mjs",
+    "preview": "astro preview",
+    "check": "node scripts/check-content.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/newsreader": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "astro": "^7.4.12",
+    "typescript": "^7.0.2"
+  }
+}

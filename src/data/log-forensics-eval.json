@@ -1,0 +1,3 @@
+{"cases": 20, "faults": 4, "seeds": [1,2,3,4,5], "correct_service": 20, "onset_error_ms_max": 0.0, "citations_resolved": "all", "runtime_seconds": 0.509, "tokens_in": 0, "tokens_out": 0, "llm_called": false,
+ "per_fault": {"bad_deploy": {"service": "payments", "correct": 5}, "dependency_timeout": {"service": "payments", "correct": 5}, "error_rate_spike": {"service": "payments", "correct": 5}, "latency_spike": {"service": "inventory", "correct": 5}},
+ "note": "Simulator faults start at a clean boundary and stay on; eval is easy by construction."}
