@@ -1,0 +1,77 @@
+---
+import Base from "../../layouts/Base.astro";
+import { formatDay, getPublished, readingMinutes } from "../../lib/posts";
+import { sparkline } from "../../lib/spark";
+
+const posts = await getPublished();
+const years = [...new Set(posts.map((post) => post.data.date.getUTCFullYear()))];
+const tags = ["tech", "life", "notes", "work"] as const;
+const firstYear = posts[0] ? posts[posts.length - 1]!.data.date.getUTCFullYear() : null;
+const counts = new Map<string, number>();
+for (const post of posts) {
+  const key = `${post.data.date.getUTCFullYear()}-${post.data.date.getUTCMonth()}`;
+  counts.set(key, (counts.get(key) ?? 0) + 1);
+}
+const spark = sparkline([...counts.values()]);
+---
+
+<Base title="Writing · Taamir Khan" description="Writing by Taamir Khan.">
+  <header class="blog-head">
+    <h1 class="display">Writing</h1>
+    {
+      posts.length === 0 ? (
+        <p class="empty">
+          First posts coming soon. <a href="/rss.xml">RSS</a>
+        </p>
+      ) : (
+        <p>
+          <span set:html={spark} />
+          {posts.length} posts since {firstYear}
+        </p>
+      )
+    }
+  </header>
+  {
+    posts.length > 0 && (
+      <div class="posts">
+        <form class="tag-radios" method="get" action="/blog">
+          <fieldset class="tags">
+            <legend>Filter</legend>
+            <label><input type="radio" name="tag" id="t-all" checked /> all</label>
+            {tags.map((tag) => (
+              <label>
+                <input type="radio" name="tag" id={`t-${tag}`} /> {tag}
+              </label>
+            ))}
+          </fieldset>
+        </form>
+        <nav class="tag-links tags" aria-label="Tags">
+          <a href="/blog">all</a>
+          {tags.map((tag) => (
+            <a href={`/blog/tag/${tag}`}>{tag}</a>
+          ))}
+        </nav>
+        <label class="kicker" for="post-search">Search</label>
+        <input id="post-search" type="search" />
+        {years.map((year) => (
+          <section>
+            <h2 class="year display">{year}</h2>
+            {posts
+              .filter((post) => post.data.date.getUTCFullYear() === year)
+              .map((post) => (
+                <a class="post-row" href={`/blog/${post.id}`} data-tags={post.data.tags.join(" ")}>
+                  <span class="mono" data-vt={`date-${post.id}`}>{formatDay(post.data.date)}</span>
+                  <span>
+                    <span class="post-title" data-vt={`post-${post.id}`}>{post.data.title}</span>
+                    <span class="post-meta">{post.data.summary}</span>
+                  </span>
+                  <span class="mono">{post.data.tags.join(" ")}</span>
+                  <span class="mono">{readingMinutes(post.body)} min</span>
+                </a>
+              ))}
+          </section>
+        ))}
+      </div>
+    )
+  }
+</Base>

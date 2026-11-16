@@ -1,0 +1,34 @@
+---
+import { jobs, school, type Role } from "../content/site";
+
+const rows: Role[] = [...jobs, school];
+---
+
+<section class="ledger block" id="work" aria-labelledby="work-title">
+  <p class="kicker">I · {jobs.length} roles</p>
+  <h2 id="work-title" class="display">Work</h2>
+  <div class="rows">
+    {
+      rows.map((role) => (
+        <div class="row">
+          <details id={role.id}>
+            <summary>
+              <span class="dates">{role.dates}</span>
+              <span class="role">
+                {role.org}
+                <small>{role.title}</small>
+              </span>
+              <span class="line">{role.line}</span>
+              <span class="plus" aria-hidden="true">+</span>
+            </summary>
+            <ul>
+              {role.bullets.map((bullet) => (
+                <li>{bullet}</li>
+              ))}
+            </ul>
+          </details>
+        </div>
+      ))
+    }
+  </div>
+</section>

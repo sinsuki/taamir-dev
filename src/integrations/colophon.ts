@@ -1,6 +1,6 @@
 import { execSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { AstroIntegration } from "astro";
@@ -18,8 +18,8 @@ export function colophon(): AstroIntegration {
         let html = readFileSync(indexPath, "utf8");
         const assets = await collectAssets(outDir, html);
         const fonts = assets.filter((file) => file.path.endsWith(".woff2"));
-        if (fonts.length < 4) {
-          throw new Error(`Expected 4 font files, found ${fonts.map((file) => file.path).join(", ") || "none"}`);
+        if (fonts.length < 3) {
+          throw new Error(`Expected 3 font files, found ${fonts.map((file) => file.path).join(", ") || "none"}`);
         }
         const assetBytes = assets.reduce((sum, file) => sum + file.bytes, 0);
         const requests = assets.length + 1;
@@ -45,17 +45,24 @@ export function colophon(): AstroIntegration {
         if (!html.includes("page weight")) throw new Error("Colophon measurement was not written");
         writeFileSync(indexPath, html);
 
-        const hashes = [...html.matchAll(/<script\b(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map(
-          (match) => `'sha256-${createHash("sha256").update(match[1] ?? "", "utf8").digest("base64")}'`,
-        );
-        const styleHashes = [...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)].map(
-          (match) => `'sha256-${createHash("sha256").update(match[1] ?? "", "utf8").digest("base64")}'`,
-        );
+        const scriptHashes = new Set<string>();
+        const styleHashes = new Set<string>();
+        for (const file of htmlFiles(outDir)) {
+          const page = readFileSync(file, "utf8");
+          for (const match of page.matchAll(/<script\b(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)) {
+            scriptHashes.add(`'sha256-${createHash("sha256").update(match[1] ?? "", "utf8").digest("base64")}'`);
+          }
+          for (const match of page.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)) {
+            if ((match[1] ?? "").trim().length === 0) continue;
+            styleHashes.add(`'sha256-${createHash("sha256").update(match[1] ?? "", "utf8").digest("base64")}'`);
+          }
+        }
+        const hashes = [...scriptHashes];
         const headersPath = path.join(outDir, "_headers");
         let headers = readFileSync(headersPath, "utf8");
         headers = headers.replace("__INLINE_HASHES__", hashes.join(" ") || "");
-        if (styleHashes.length > 0) {
-          headers = headers.replace("style-src 'self'", `style-src 'self' ${styleHashes.join(" ")}`);
+        if (styleHashes.size > 0) {
+          headers = headers.replace("style-src 'self'", `style-src 'self' ${[...styleHashes].join(" ")}`);
         }
         if (headers.includes("__INLINE_HASHES__")) throw new Error("CSP placeholder was not replaced");
         writeFileSync(headersPath, headers);
@@ -97,6 +104,16 @@ async function collectAssets(outDir: string, html: string): Promise<{ path: stri
     }
   }
   return files;
+}
+
+function htmlFiles(dir: string): string[] {
+  const found: string[] = [];
+  for (const name of readdirSync(dir)) {
+    const file = path.join(dir, name);
+    if (statSync(file).isDirectory()) found.push(...htmlFiles(file));
+    else if (file.endsWith(".html")) found.push(file);
+  }
+  return found;
 }
 
 function countTrackers(html: string, extra: string): number {

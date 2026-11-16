@@ -1,0 +1,69 @@
+---
+import { email, github, linkedin, showShelf } from "../content/site";
+
+const home = Astro.url.pathname === "/";
+---
+
+<footer class="band band-forest">
+  <ul class="field-index">
+    <li>
+      <svg viewBox="0 0 56 56" aria-hidden="true">
+        <path d="M10 16h36M10 28h36M10 40h24" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      </svg>
+      <a href="/#work">Work</a>
+      <a class="sub" href="/#argo">Argo Data</a>
+      <a class="sub" href="/#synchrony">Synchrony</a>
+      <a class="sub" href="/#amazon">Amazon</a>
+    </li>
+    <li>
+      <svg viewBox="0 0 56 56" aria-hidden="true">
+        <path d="M28 44V22M28 28c-8-2-12-10-10-16M28 24c8-4 14-2 16-10" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      </svg>
+      <a href="/blog">Writing</a>
+      <a class="sub" href="/blog">All writing</a>
+      <a class="sub" href="/rss.xml">RSS</a>
+    </li>
+    {
+      showShelf && (
+        <li>
+          <svg viewBox="0 0 56 56" aria-hidden="true">
+            <path d="M28 10l14 28H14zM18 42h20" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+          </svg>
+          <a href="/#play">Play</a>
+          <a class="sub" href="/#play">The shelf</a>
+        </li>
+      )
+    }
+    <li>
+      <svg viewBox="0 0 56 56" aria-hidden="true">
+        <path d="M10 16h36v24H10zM10 16l18 14L46 16" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      </svg>
+      <a href="/#contact">Contact</a>
+      <a class="sub" href={`mailto:${email}`}>Email</a>
+      <a class="sub" href={github}>GitHub</a>
+      <a class="sub" href={linkedin}>LinkedIn</a>
+    </li>
+  </ul>
+  <div class="colophon mono">
+    <p>set in Fraunces, Schibsted Grotesk, Martian Mono (OFL) · built with Astro · hosted on Cloudflare</p>
+    {home && <p id="colophon-measured" class="measured">0.0 KB page weight · 0 requests · 0 trackers · 0 LLM tokens spent rendering this page</p>}
+    {home && <p id="colophon-updated" class="measured"></p>}
+    <p>this page uses</p>
+    <ul class="pills">
+      <li class="feat-oklch">oklch</li>
+      <li class="feat-mix">color-mix</li>
+      <li class="feat-relative">relative colors</li>
+      <li class="feat-ld">light-dark()</li>
+      <li class="feat-nest">nesting</li>
+      <li class="feat-has">:has()</li>
+      <li class="feat-cq">container queries</li>
+      <li class="feat-sub">subgrid</li>
+      <li class="feat-scroll">scroll-driven animations</li>
+      <li class="feat-vt">view transitions</li>
+      <li class="feat-prop">@property</li>
+      <li class="feat-anchor">anchor positioning</li>
+      <li class="feat-start">@starting-style</li>
+      <li class="feat-wrap">text-wrap</li>
+    </ul>
+  </div>
+</footer>

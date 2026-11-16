@@ -1,0 +1,36 @@
+---
+import { render } from "astro:content";
+import PostLayout from "../../layouts/Post.astro";
+import { formatFull, getPublished, readingMinutes } from "../../lib/posts";
+import { email } from "../../content/site";
+
+export async function getStaticPaths() {
+  const posts = await getPublished();
+  return posts.map((post, index) => ({
+    params: { slug: post.id },
+    props: { post, previous: posts[index + 1] ?? null, next: posts[index - 1] ?? null },
+  }));
+}
+
+const { post, previous, next } = Astro.props;
+const { Content } = await render(post);
+const minutes = readingMinutes(post.body);
+const subject = encodeURIComponent(post.data.title);
+---
+
+<PostLayout title={`${post.data.title} · Taamir Khan`} description={post.data.summary}>
+  <p class="kicker">
+    {post.data.tags.join(" · ")} · {minutes} min read · {formatFull(post.data.date)}
+  </p>
+  <h1 class="display" data-vt={`post-${post.id}`}>{post.data.title}</h1>
+  <p class="lead">{post.data.summary}</p>
+  <div class="post-body">
+    <Content />
+  </div>
+  <p>
+    {previous && <a href={`/blog/${previous.id}`} data-vt={`post-${previous.id}`}>{previous.data.title}</a>}
+    {next && <a href={`/blog/${next.id}`} data-vt={`post-${next.id}`}>{next.data.title}</a>}
+  </p>
+  <p><a href="/blog">All writing</a></p>
+  <p><a href={`mailto:${email}?subject=${subject}`}>Reply by email</a></p>
+</PostLayout>

@@ -1,0 +1,15 @@
+---
+import { contactLine, email, github, linkedin } from "../content/site";
+---
+
+<section class="band band-forest contact" id="contact" aria-labelledby="contact-title">
+  <h2 id="contact-title" class="display">{contactLine}</h2>
+  <p>
+    <a href={`mailto:${email}`}>{email}</a>
+    <button class="copy" type="button" data-copy={email}>Copy</button>
+  </p>
+  <p class="contact-links">
+    <a href={github}>GitHub (github.com/sinsuki)</a>
+    <a href={linkedin}>LinkedIn</a>
+  </p>
+</section>

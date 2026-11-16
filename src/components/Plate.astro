@@ -1,0 +1,81 @@
+---
+import type { Figure, Project } from "../content/projects";
+import Arrow from "./Arrow.astro";
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+
+function table(figure: Figure) {
+  return figure.rows;
+}
+---
+
+<article class="plate" id={project.id}>
+  <p class="kicker">{project.kicker}</p>
+  <h2 class="plate-title display">
+    <a href={project.href}>{project.title}</a>
+  </h2>
+  <p class="summary">{project.summary}</p>
+  <div class="spread">
+    <figure class="figure">
+      <span class="fig-id mono">{project.figure.id}</span>
+      <Fragment set:html={project.figure.svg} />
+      <figcaption>
+        <p class="caption mono">{project.figure.caption}</p>
+        <p class="provenance kicker">{project.figure.provenance}</p>
+      </figcaption>
+      <table class="vh">
+        <caption>{project.figure.caption}</caption>
+        <thead>
+          <tr><th>Label</th><th>Value</th></tr>
+        </thead>
+        <tbody>
+          {table(project.figure).map((row) => (
+            <tr><td>{row.label}</td><td>{row.value}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </figure>
+    <div class="takeaway">
+      <p class="kicker">What the numbers showed</p>
+      <p class="datum">{project.datum}<span>{project.unit}</span></p>
+      <p>{project.takeaway}</p>
+      {project.caveats.map((line) => <p class="note">{line}</p>)}
+    </div>
+  </div>
+  <h3>In short</h3>
+  <ul class="bullets">
+    {project.bullets.map((bullet) => <li>{bullet}</li>)}
+  </ul>
+  <details>
+    <summary>Under the hood</summary>
+    <ul class="milestones">
+      {project.stamps.map((stamp) => (
+        <li class="milestone">
+          <span class="stamp stamp-shipped">Shipped</span>
+          <a href={stamp.href}>{stamp.name}</a>
+          <span class="kicker"> {stamp.detail}</span>
+        </li>
+      ))}
+    </ul>
+    {project.hood.map((line) => <p>{line}</p>)}
+    {project.hoodFigure && (
+      <figure class="figure">
+        <span class="fig-id mono">{project.hoodFigure.id}</span>
+        <Fragment set:html={project.hoodFigure.svg} />
+        <figcaption>
+          <p class="caption mono">{project.hoodFigure.caption}</p>
+        </figcaption>
+      </figure>
+    )}
+    {project.commands.map((command) => <pre class="snippet"><code>{command}</code></pre>)}
+  </details>
+  <p class="links">
+    <a href={project.href}>Code on GitHub <Arrow /></a>
+    <a href={`${project.href}#readme`}>README <Arrow /></a>
+    <button class="copy" type="button" data-copy={project.demo}>{project.demo}</button>
+  </p>
+</article>
