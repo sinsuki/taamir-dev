@@ -194,7 +194,12 @@
 *::before,
 *::after { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; overflow-x: clip; }
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
+  /* 32px on-air strip + 48px header, so anchors and focus clear the sticky bar */
+  scroll-padding-top: calc(32px + 48px);
+}
 
 body {
   margin: 0;
