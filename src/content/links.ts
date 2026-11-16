@@ -1,6 +1,6 @@
 export const email = "taamirkhan0622@gmail.com";
 export const linkedin = "https://www.linkedin.com/in/taamir-khan0622";
-export const github = "https://github.com/taamir-khan";
+export const github = "https://github.com/sinsuki";
 export const guardrailRepo = "https://github.com/sinsuki/guardrail-proxy";
 export const incidentRepo = "https://github.com/sinsuki/incident-responder";
 
@@ -43,18 +43,21 @@ export const incidentMilestones = [
   },
   {
     name: "Code Archaeologist agent",
-    status: "planned" as const,
-    detail: "Recent commits, git blame.",
+    status: "shipped" as const,
+    pr: "https://github.com/sinsuki/incident-responder/pull/3",
+    detail: "Ranks commits by their diffs and requires git blame to own the cited line. 91 pytest tests.",
   },
   {
     name: "Runbook agent",
-    status: "planned" as const,
-    detail: "Mitigation steps.",
+    status: "shipped" as const,
+    pr: "https://github.com/sinsuki/incident-responder/pull/4",
+    detail: "Picks ordered mitigation steps from repo runbooks. 136 pytest tests.",
   },
   {
-    name: "Citation-checked RCA report",
-    status: "planned" as const,
-    detail: "",
+    name: "One-command RCA pipeline",
+    status: "shipped" as const,
+    pr: "https://github.com/sinsuki/incident-responder/pull/5",
+    detail: "python -m orchestrator writes rca.md and rca.json. A citation verifier checks every sentence. 157 pytest tests.",
   },
   {
     name: "README with demo",

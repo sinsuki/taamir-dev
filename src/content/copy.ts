@@ -5,16 +5,8 @@ export const introSentence =
   "Taamir Khan is a software engineer who builds banking software, and is working on making AI agents safer and cheaper to run.";
 
 // NEEDS TAAMIR SIGN-OFF
-export const caresLine =
-  "He cares about understanding people and explaining things clearly.";
-
-// NEEDS TAAMIR SIGN-OFF
 export const tellerLine =
   "I build teller software for banks: the screens and services behind a deposit or a withdrawal.";
-
-// NEEDS TAAMIR SIGN-OFF
-export const governanceLine =
-  "I care about understanding people and explaining a system clearly. That is also why I am moving toward AI governance, and toward agents that do not waste tokens.";
 
 // NEEDS TAAMIR SIGN-OFF
 export const guardrailPlain = [

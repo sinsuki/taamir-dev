@@ -35,4 +35,9 @@ export const incidentNotes = {
   selfTime:
     "Fixed misattributed latency in nested calls by measuring each service's own span time (child spans subtracted), so a slow dependency isn't blamed on its callers.",
   llmOff: "Tokens: 0 in, 0 out (deterministic mode, no LLM called).",
+  e2eResult:
+    "End to end it scored 20/20 correct root cause, 20/20 mitigations cleared, and 20/20 citations verified in 2.07 s, using 0 LLM tokens in deterministic mode (4 faults x 5 seeds).",
+  e2eWall: "2.066 s",
+  evalEasyMd:
+    "the simulator's faults start at a clean boundary and stay on, so the eval is easy. Short blips that recover could be missed.",
 } as const;
