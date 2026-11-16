@@ -56,6 +56,7 @@ const required = [
   "page weight",
   "0 trackers",
   "0 LLM tokens spent rendering this page",
+  "Type five cron fields, like 0 9 * * 1-5, or a Unix timestamp.",
 ];
 for (const phrase of required) {
   if (!html.includes(phrase)) failures.push(`Missing phrase: ${phrase}`);

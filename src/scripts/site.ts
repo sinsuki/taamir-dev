@@ -1,3 +1,5 @@
+import { decodeInput } from "../lib/decode.mjs";
+
 type Mode = "system" | "light" | "dark";
 type Payload = {
   state?: string;
@@ -23,6 +25,7 @@ export function initSite(): void {
   }
   const search = document.querySelector<HTMLInputElement>("#post-search");
   search?.addEventListener("input", () => filterPosts(search.value));
+  bindPalette();
   for (const node of document.querySelectorAll<HTMLElement>("[data-vt]")) {
     const name = node.dataset.vt;
     if (name) node.style.viewTransitionName = name;
@@ -69,12 +72,9 @@ function onKey(event: KeyboardEvent): void {
     cycleTheme();
     return;
   }
-  if (event.key === "/" && location.pathname.startsWith("/blog")) {
-    const box = document.querySelector<HTMLInputElement>("#post-search");
-    if (box) {
-      event.preventDefault();
-      box.focus();
-    }
+  if (event.key === "/" && !event.metaKey && !event.ctrlKey && !event.altKey) {
+    event.preventDefault();
+    openPalette();
     return;
   }
   if (event.key === "g" && !event.metaKey && !event.ctrlKey) {
@@ -110,6 +110,72 @@ async function copyText(button: HTMLButtonElement): Promise<void> {
   window.setTimeout(() => {
     button.textContent = previous;
   }, 1200);
+}
+
+let paletteReturn: HTMLElement | null = null;
+
+function bindPalette(): void {
+  const palette = document.getElementById("palette");
+  const input = document.querySelector<HTMLInputElement>("#palette-input");
+  const result = document.getElementById("palette-result");
+  if (!palette || !input || !result) return;
+  input.addEventListener("input", () => paintPalette(input.value, result));
+  palette.addEventListener("toggle", (event) => {
+    if (!(event instanceof ToggleEvent) || event.newState !== "closed") return;
+    input.value = "";
+    result.textContent = "Type five cron fields, like 0 9 * * 1-5, or a Unix timestamp.";
+    filterPosts("");
+    paletteReturn?.focus();
+    paletteReturn = null;
+  });
+}
+
+function openPalette(): void {
+  const palette = document.getElementById("palette");
+  const input = document.querySelector<HTMLInputElement>("#palette-input");
+  if (!(palette instanceof HTMLElement) || typeof palette.showPopover !== "function" || !input) return;
+  paletteReturn = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  if (!palette.matches(":popover-open")) palette.showPopover();
+  input.focus();
+}
+
+function paintPalette(value: string, result: HTMLElement): void {
+  const decoded = decodeInput(value);
+  if (decoded.kind === "empty") {
+    result.textContent = "Type five cron fields, like 0 9 * * 1-5, or a Unix timestamp.";
+    filterPosts("");
+    return;
+  }
+  if (decoded.kind === "help") {
+    if (location.pathname.startsWith("/blog") && document.querySelector(".post-row")) {
+      filterPosts(value);
+      result.textContent = "Searching posts.";
+      return;
+    }
+    result.textContent = decoded.message ?? "";
+    return;
+  }
+  if (decoded.kind === "error") {
+    result.textContent = decoded.message ?? "";
+    filterPosts("");
+    return;
+  }
+  filterPosts("");
+  const summary = document.createElement("p");
+  summary.textContent = decoded.summary ?? "";
+  const note = document.createElement("p");
+  note.textContent = decoded.note ?? "";
+  result.replaceChildren(summary);
+  if (decoded.runs && decoded.runs.length > 0) {
+    const list = document.createElement("ol");
+    for (const run of decoded.runs) {
+      const item = document.createElement("li");
+      item.textContent = run;
+      list.append(item);
+    }
+    result.append(list);
+  }
+  if (decoded.note) result.append(note);
 }
 
 function filterPosts(query: string): void {
