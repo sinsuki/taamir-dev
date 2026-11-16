@@ -56,15 +56,20 @@ import Base from "../../layouts/Base.astro";
     save();
     paint();
   }
-  for (let index = 0; index < 9; index += 1) {
-    const button = document.createElement("button");
-    button.type = "button";
-    const row = Math.floor(index / 3) + 1;
-    const col = (index % 3) + 1;
-    button.setAttribute("aria-label", `Row ${row} column ${col}`);
-    button.addEventListener("click", () => play(index));
-    buttons.push(button);
-    root.append(button);
+  for (let row = 0; row < 3; row += 1) {
+    const rowEl = document.createElement("div");
+    rowEl.setAttribute("role", "row");
+    for (let col = 0; col < 3; col += 1) {
+      const index = row * 3 + col;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.setAttribute("role", "gridcell");
+      button.setAttribute("aria-label", `Row ${row + 1} column ${col + 1}`);
+      button.addEventListener("click", () => play(index));
+      buttons.push(button);
+      rowEl.append(button);
+    }
+    root.append(rowEl);
   }
   think.addEventListener("click", () => { show = !show; save(); paint(); });
   document.getElementById("again")!.addEventListener("click", () => { board = Array(9).fill(""); save(); paint(); });
