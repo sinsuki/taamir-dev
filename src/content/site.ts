@@ -7,7 +7,7 @@ export const incidentRepo = "https://github.com/sinsuki/incident-responder";
 export const intro =
   "I'm Taamir Khan, a software engineer currently working on banking software at Argo Data.";
 
-export const introNote = "Before that: Synchrony, Amazon (intern), and a CS degree from UConn.";
+export const introNote = "Before that: Synchrony, Amazon, and a CS degree from UConn.";
 
 export const contactLine = "Email is the best way to reach me.";
 

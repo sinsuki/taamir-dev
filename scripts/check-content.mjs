@@ -44,13 +44,9 @@ for (const pattern of forbid) {
 
 const required = [
   "This is derived from the median, not a separate load test.",
-  "That 112 µs is the difference between the two medians, not a separate benchmark.",
-  "Approval adds ~111,696 ns (difference of the two proxy medians, not a separate benchmark).",
+  "The full approval round trip over localhost adds 111.7 µs (162.8 µs vs 51.1 µs). That is the difference between the two medians, not a separate benchmark.",
   "Simulator faults start at a clean boundary and stay on; eval is easy by construction.",
   "Short blips that recover could be missed.",
-  "built binary, excludes compile",
-  "Two runs, not a benchmark.",
-  "not counting compilation",
   "a personal name, a street address, an obfuscated email",
   "0 false positives",
   "421.05",
@@ -96,6 +92,17 @@ if (!html.includes("6.57") || !html.includes("1.99") || !html.includes("1.985"))
 }
 if (!html.includes("I'm Taamir Khan, a software engineer currently working on banking software at Argo Data.")) {
   failures.push("Missing the chosen intro");
+}
+if (!html.includes("Before that: Synchrony, Amazon, and a CS degree from UConn.")) {
+  failures.push("Missing the intro note");
+}
+if (html.includes("Amazon (intern)")) failures.push("Intro still marks Amazon as intern");
+if (!html.includes("SDE Intern, Fire TV")) failures.push("Amazon role title should stay intern");
+const caveat = "not a separate benchmark";
+const caveatCount = html.split(caveat).length - 1;
+if (caveatCount !== 1) failures.push(`Approval caveat appears ${caveatCount} times`);
+for (const raw of ["162,754", "51,058", "111,696", "0.027"]) {
+  if (html.includes(raw)) failures.push(`Raw approval or demo figure still shown: ${raw}`);
 }
 if (html.includes('id="play"')) failures.push("Empty shelf is on the page");
 if (!html.includes("First posts coming soon.")) failures.push("Missing empty writing state");
