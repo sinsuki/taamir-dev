@@ -7,3 +7,14 @@
 }
 
 .post-body em { font-style: italic; }
+
+.post-body .tok-foreground,
+.post-body .tok-token-punctuation,
+.post-body .tok-token-parameter { color: var(--ink); }
+.post-body .tok-token-keyword,
+.post-body .tok-token-constant { color: var(--clay); }
+.post-body .tok-token-string,
+.post-body .tok-token-string-expression,
+.post-body .tok-token-function,
+.post-body .tok-token-link { color: var(--moss); }
+.post-body .tok-token-comment { color: var(--muted); }

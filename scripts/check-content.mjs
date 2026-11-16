@@ -98,7 +98,23 @@ if (!html.includes("I'm Taamir Khan, a software engineer currently working on ba
   failures.push("Missing the chosen intro");
 }
 if (html.includes('id="play"')) failures.push("Empty shelf is on the page");
-if (!html.includes("First posts coming soon.")) failures.push("Missing empty writing state");
+const postTitle = "Spending fewer tokens: a practical guide to cheaper LLM apps";
+if (!html.includes(postTitle)) failures.push("Home writing band is missing the token post");
+if (html.includes("First posts coming soon.")) failures.push("Empty writing state is still on the home page");
+const postPage = path.join(root, "blog", "2026-11-16-token-efficiency", "index.html");
+if (!existsSync(postPage)) failures.push("Missing the token post page");
+else {
+  const postHtml = readFileSync(postPage, "utf8");
+  if (!postHtml.includes("min read")) failures.push("Post page is missing the computed read time");
+  if (!postHtml.includes('href="https://platform.openai.com/docs/concepts"')) {
+    failures.push("Post external link was rewritten");
+  }
+  if (postHtml.includes("style=")) failures.push("Post page has an inline style attribute");
+  if (!/tok-token-keyword/.test(postHtml)) failures.push("Code tokens were not classed");
+}
+const rss = existsSync(path.join(root, "rss.xml")) ? readFileSync(path.join(root, "rss.xml"), "utf8") : "";
+const rssItems = rss.match(/<item>/g) ?? [];
+if (rssItems.length !== 1 || !rss.includes(postTitle)) failures.push("RSS should contain the one token post");
 const preloads = [...html.matchAll(/<link\b[^>]*rel="preload"[^>]*>/g)].map((match) => match[0]);
 if (preloads.length !== 1 || !preloads[0].includes("fraunces")) {
   failures.push(`Preload should be Fraunces only, found ${preloads.join(" | ") || "none"}`);
