@@ -9,7 +9,10 @@ import Base from "../../layouts/Base.astro";
       <h1 class="display">Tic-tac-toe</h1>
       <p>You are X. The reply never loses. Thinking shades each empty square by its score.</p>
     </header>
-    <p><button type="button" id="think" aria-pressed="false">Show its thinking</button> <button type="button" id="again">Again</button></p>
+    <p class="toy-controls">
+      <button type="button" class="toy-button" id="think" aria-pressed="false">Show its thinking</button>
+      <button type="button" class="toy-button" id="again">New game</button>
+    </p>
     <div id="board" class="ttt" role="grid" aria-label="Tic-tac-toe"></div>
     <p id="note" aria-live="polite"></p>
     <p><a href="/#play">Back to the shelf</a></p>
