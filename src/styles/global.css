@@ -727,9 +727,34 @@ html.paused .eq i { animation: none; }
 .tags legend { font-family: "Martian Mono", monospace; font-size: 0.75rem; }
 .tag-radios { display: none; }
 
-.post-body { max-width: 68ch; font-size: 1.1875rem; line-height: 1.65; }
+.post-body {
+  max-width: min(68ch, 100%);
+  min-width: 0;
+  font-size: 1.1875rem;
+  line-height: 1.65;
+}
 .post-body :is(h2, h3) { font-family: "Schibsted Grotesk", Arial, sans-serif; font-weight: 650; }
-.post-body pre { background: var(--sunk); overflow-x: auto; padding: 0.8rem; }
+.post-body pre {
+  max-width: 100%;
+  min-width: 0;
+  background: var(--sunk);
+  color: var(--ink);
+  overflow-x: auto;
+  padding: 0.8rem;
+  font-family: "Martian Mono", ui-monospace, monospace;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+.post-body pre code {
+  font-family: inherit;
+  font-size: inherit;
+}
+.post-body :not(pre) > code {
+  font-family: "Martian Mono", ui-monospace, monospace;
+  font-size: 0.85em;
+  background: var(--sunk);
+  padding: 0.05em 0.25em;
+}
 .callout { padding: 0.6rem 0.8rem; background: var(--sunk); }
 .callout.clay { border-inline-start: 2px solid var(--clay); }
 .callout.moss { border-inline-start: 2px solid var(--moss); }
