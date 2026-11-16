@@ -76,6 +76,15 @@ test("seconds and milliseconds are the same instant", () => {
   assert.doesNotMatch(seconds.summary, /[A-Z][a-z]+\//);
 });
 
+test("run times are tight local strings and omit the current year", () => {
+  const now = new Date(2026, 10, 16, 10, 0, 0);
+  const decoded = decodeInput("0 9 * * 1-5", now);
+  assert.equal(decoded.runs[0], "Tue 17 Nov  09:00");
+  assert.equal(decoded.runs[0].includes(","), false);
+  const nextYear = decodeInput("0 9 2 1 *", new Date(2026, 11, 20, 0, 0, 0));
+  assert.equal(nextYear.runs[0], "Sat 2 Jan 2027  09:00");
+});
+
 test("other text is a short hint, not a stored value", () => {
   assert.equal(decodeInput("").kind, "empty");
   assert.match(decodeInput("hello").message, /0 9 \* \* 1-5/);

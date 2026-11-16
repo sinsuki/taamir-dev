@@ -1,39 +1,58 @@
 ---
 import "../../styles/lab.css";
 import Base from "../../layouts/Base.astro";
+
+const tokens = ["paper", "sunk", "ink", "muted", "rule", "moss", "clay", "ochre", "forest", "forest-ink", "sage"];
 ---
 
 <Base title="Palette Lab · Taamir Khan" description="Pick a color in OKLCH and copy a light-dark pair.">
   <article class="lab block">
-    <p class="kicker">Play</p>
+    <p class="kicker">No. 03</p>
     <h1 class="display">Palette Lab</h1>
     <p>Pick a color in OKLCH. The second swatch is the same color with lightness flipped, using relative color syntax.</p>
-    <div class="lab-controls">
-      <label>Lightness <span data-lab="l-out">70</span>
-        <input data-lab="l" type="range" min="0" max="100" step="1" value="70" />
-      </label>
-      <label>Chroma <span data-lab="c-out">0.100</span>
-        <input data-lab="c" type="range" min="0" max="0.4" step="0.001" value="0.1" />
-      </label>
-      <label>Hue <span data-lab="h-out">150</span>
-        <input data-lab="h" type="range" min="0" max="360" step="1" value="150" />
-      </label>
-    </div>
-    <div class="lab-swatches">
-      <div>
-        <div class="lab-bar lab-picked" data-lab="picked"></div>
-        <p data-lab="hex">#000000</p>
-        <p data-lab="picked-contrast"></p>
+    <div class="lab-stage">
+      <div class="lab-controls">
+        <label>Lightness <span data-lab="l-out">70</span>
+          <input class="range range-l" data-lab="l" type="range" min="0" max="100" step="1" value="70" />
+        </label>
+        <label>Chroma <span data-lab="c-out">0.100</span>
+          <input class="range range-c" data-lab="c" type="range" min="0" max="0.4" step="0.001" value="0.1" />
+        </label>
+        <label>Hue <span data-lab="h-out">150</span>
+          <input class="range range-hue" data-lab="h" type="range" min="0" max="360" step="1" value="150" />
+        </label>
       </div>
-      <div>
-        <div class="lab-bar lab-flipped" data-lab="flipped"></div>
-        <p>Flipped lightness</p>
-        <p data-lab="flipped-contrast"></p>
+      <div class="lab-swatches">
+        <div>
+          <div class="lab-bar lab-picked" data-lab="picked"></div>
+          <p class="lab-hex" data-lab="hex">#000000</p>
+          <p class="lab-stamps" data-lab="picked-contrast"></p>
+        </div>
+        <div>
+          <div class="lab-bar lab-flipped" data-lab="flipped"></div>
+          <p class="lab-hex" data-lab="flipped-hex">#000000</p>
+          <p class="lab-stamps" data-lab="flipped-contrast"></p>
+        </div>
       </div>
     </div>
     <p class="kicker" id="lab-pair-label">light-dark() pair</p>
     <pre id="lab-pair" aria-labelledby="lab-pair-label"></pre>
-    <p><button type="button" id="lab-copy">Copy pair</button></p>
+    <p class="lab-copy">
+      <button type="button" class="copy" id="lab-copy">Copy pair</button>
+      <span id="lab-status" aria-live="polite"></span>
+    </p>
+    <h2 class="kicker">Site tokens</h2>
+    <ul class="token-list">
+      {
+        tokens.map((token) => (
+          <li>
+            <span class:list={["swatch", `swatch-${token}`]} data-token={token}></span>
+            <span>{token}</span>
+            <span data-contrast={token}></span>
+          </li>
+        ))
+      }
+    </ul>
     <p><a href="/#play">Back to the shelf</a></p>
   </article>
 </Base>
@@ -41,14 +60,16 @@ import Base from "../../layouts/Base.astro";
 <script>
   import { channels, contrast, hex } from "../../lib/contrast.mjs";
 
-  const root = document.documentElement;
+  const lab = document.querySelector<HTMLElement>(".lab")!;
   const l = document.querySelector<HTMLInputElement>("[data-lab=l]")!;
   const c = document.querySelector<HTMLInputElement>("[data-lab=c]")!;
   const h = document.querySelector<HTMLInputElement>("[data-lab=h]")!;
   const picked = document.querySelector<HTMLElement>("[data-lab=picked]")!;
   const flipped = document.querySelector<HTMLElement>("[data-lab=flipped]")!;
   const pair = document.getElementById("lab-pair")!;
-  const copy = document.getElementById("lab-copy")!;
+  const copy = document.getElementById("lab-copy") as HTMLButtonElement;
+  const status = document.getElementById("lab-status")!;
+  let copyTimer = 0;
 
   function color() {
     return `oklch(${l.value}% ${c.value} ${h.value})`;
@@ -58,15 +79,26 @@ import Base from "../../layouts/Base.astro";
     return channels(getComputedStyle(el).backgroundColor);
   }
 
-  function line(rgb: number[]) {
+  function stamp(ratio: number) {
+    const node = document.createElement("span");
+    const pass = ratio >= 4.5;
+    node.className = `contrast-stamp ${pass ? "pass" : "fail"}`;
+    node.textContent = `${ratio.toFixed(2)} · ${ratio >= 7 ? "AAA" : pass ? "AA" : "FAIL"}`;
+    return node;
+  }
+
+  function ratios(rgb: number[]) {
     const paper = channels(getComputedStyle(document.body).backgroundColor);
     const ink = channels(getComputedStyle(document.body).color);
-    return `${contrast(rgb, paper).toFixed(2)} on paper, ${contrast(rgb, ink).toFixed(2)} on ink`;
+    return [stamp(contrast(rgb, paper)), stamp(contrast(rgb, ink))];
   }
 
   function paint() {
     const value = color();
-    root.style.setProperty("--picked", value);
+    lab.style.setProperty("--l", `${l.value}%`);
+    lab.style.setProperty("--c", c.value);
+    lab.style.setProperty("--h", h.value);
+    lab.style.setProperty("--picked", value);
     const lOut = document.querySelector("[data-lab=l-out]");
     const cOut = document.querySelector("[data-lab=c-out]");
     const hOut = document.querySelector("[data-lab=h-out]");
@@ -74,27 +106,42 @@ import Base from "../../layouts/Base.astro";
     if (cOut) cOut.textContent = Number(c.value).toFixed(3);
     if (hOut) hOut.textContent = h.value;
     const pickedRgb = read(picked);
+    const flippedRgb = read(flipped);
     const hexNode = document.querySelector("[data-lab=hex]");
+    const flippedHex = document.querySelector("[data-lab=flipped-hex]");
     if (hexNode) hexNode.textContent = hex(pickedRgb);
+    if (flippedHex) flippedHex.textContent = hex(flippedRgb);
     const pickedLine = document.querySelector("[data-lab=picked-contrast]");
     const flippedLine = document.querySelector("[data-lab=flipped-contrast]");
-    if (pickedLine) pickedLine.textContent = line(pickedRgb);
-    if (flippedLine) flippedLine.textContent = line(read(flipped));
+    if (pickedLine) pickedLine.replaceChildren(...ratios(pickedRgb));
+    if (flippedLine) flippedLine.replaceChildren(...ratios(flippedRgb));
     pair.textContent = `light-dark(${value}, oklch(from ${value} calc(1 - l) c h))`;
+  }
+
+  function markCopied(message: string, buttonLabel: string) {
+    copy.textContent = buttonLabel;
+    status.textContent = message;
+    window.clearTimeout(copyTimer);
+    copyTimer = window.setTimeout(() => {
+      copy.textContent = "Copy pair";
+      status.textContent = "";
+    }, 2000);
   }
 
   for (const input of [l, c, h]) input.addEventListener("input", paint);
   copy.addEventListener("click", async () => {
+    const text = pair.textContent ?? "";
     try {
-      await navigator.clipboard.writeText(pair.textContent ?? "");
+      await navigator.clipboard.writeText(text);
+      markCopied("Copied", "Copied");
     } catch {
-      return;
+      const range = document.createRange();
+      range.selectNodeContents(pair);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+      markCopied("Clipboard is unavailable. The pair is selected.", "Copy pair");
     }
-    const previous = copy.textContent;
-    copy.textContent = "copied";
-    window.setTimeout(() => {
-      copy.textContent = previous;
-    }, 1200);
   });
   paint();
 </script>
