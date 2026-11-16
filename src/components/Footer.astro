@@ -44,6 +44,20 @@ const home = Astro.url.pathname === "/";
       <a class="sub" href={linkedin}>LinkedIn</a>
     </li>
   </ul>
+  <div class="desk-plant" data-plant role="img" aria-label="Desk plant">
+    <svg viewBox="0 0 56 72" aria-hidden="true">
+      <path d="M28 68V28" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      <path data-leaf="1" hidden d="M28 58c-10-2-16-10-12-16" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      <path data-leaf="2" hidden d="M28 52c10-2 16-8 12-14" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      <path data-leaf="3" hidden d="M28 46c-12-1-16-12-10-16" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      <path data-leaf="4" hidden d="M28 40c11-1 15-10 9-14" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      <path data-leaf="5" hidden d="M28 34c-10 0-14-8-8-12" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      <path data-leaf="6" hidden d="M28 30c9 0 12-6 7-10" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      <path data-leaf="7" hidden d="M28 26c-8 1-10-5-5-8" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      <path data-leaf="8" hidden d="M28 24c7 1 9-4 5-7" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      <path data-leaf="9" hidden d="M28 22c-4-6 4-10 0-12" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+    </svg>
+  </div>
   <div class="colophon mono">
     <p>set in Fraunces, Schibsted Grotesk, Martian Mono (OFL) · built with Astro · hosted on Cloudflare</p>
     {home && <p id="colophon-measured" class="measured">0.0 KB page weight · 0 requests · 0 trackers · 0 LLM tokens spent rendering this page</p>}

@@ -915,6 +915,10 @@ html.paused .eq i { animation: none; }
 .field-index a { color: var(--forest-ink); }
 .field-index .sub { color: var(--forest-ink); opacity: 0.85; display: block; font-size: 0.95rem; }
 
+.desk-plant { width: 56px; height: 72px; margin: 0 0 1rem; color: var(--forest-ink); }
+.desk-plant svg { display: block; width: 56px; height: 72px; }
+.desk-plant [hidden] { display: none; }
+
 .colophon { font-size: 0.75rem; }
 .pills { display: flex; flex-wrap: wrap; gap: 0.35rem 0.7rem; list-style: none; padding: 0; margin: 0.4rem 0 0; }
 .pills li::before { content: "fallback "; }
