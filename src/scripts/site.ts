@@ -1,5 +1,6 @@
 import { channels, contrast } from "../lib/contrast.mjs";
 import { decodeInput } from "../lib/decode.mjs";
+import { leafCap, localDate, rememberVisit } from "../lib/plant.mjs";
 
 type Mode = "system" | "light" | "dark";
 const tokens = ["paper", "sunk", "ink", "muted", "rule", "moss", "clay", "ochre", "forest", "forest-ink", "sage"];
@@ -43,6 +44,7 @@ export function initSite(): void {
   };
   if ("requestIdleCallback" in window) requestIdleCallback(start);
   else window.setTimeout(start, 300);
+  growPlant();
 }
 
 function cycleTheme(): void {
@@ -251,6 +253,29 @@ function paintTokens(): void {
     if (!swatch || !out) continue;
     const rgb = channels(getComputedStyle(swatch).backgroundColor);
     out.textContent = `${contrast(rgb, paper).toFixed(2)} on paper, ${contrast(rgb, ink).toFixed(2)} on ink`;
+  }
+}
+
+function growPlant(): void {
+  const plant = document.querySelector<HTMLElement>("[data-plant]");
+  if (!plant) return;
+  let stored: unknown = [];
+  try {
+    stored = JSON.parse(localStorage.getItem("desk-plant") || "[]");
+  } catch {
+    stored = [];
+  }
+  const days = rememberVisit(Array.isArray(stored) ? stored : [], localDate());
+  try {
+    localStorage.setItem("desk-plant", JSON.stringify(days));
+  } catch {
+    /* the plant still shows the days already counted */
+  }
+  const count = Math.min(days.length, leafCap);
+  plant.dataset.leaves = String(count);
+  for (const leaf of plant.querySelectorAll<SVGElement>("[data-leaf]")) {
+    const index = Number(leaf.dataset.leaf);
+    leaf.toggleAttribute("hidden", index > count);
   }
 }
 
