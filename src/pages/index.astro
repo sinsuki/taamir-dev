@@ -38,8 +38,8 @@ const introRest = introSentence.replace(/^Taamir Khan/, "");
       <p>
         <span class="k">reach:</span>
         <a href={`mailto:${email}`}>email</a> · <a href={github}>github</a> · <a href={linkedin}>linkedin</a>
-        <span class="caret" aria-hidden="true"></span>
       </p>
+      <p class="prompt" aria-hidden="true"><span class="caret"></span></p>
     </div>
   </section>
 
@@ -47,9 +47,9 @@ const introRest = introSentence.replace(/^Taamir Khan/, "");
     <h2 class="label">01 — About</h2>
     <div class="section-body">
       <p>{tellerLine}</p>
+      <p class="note">From the résumé.</p>
       <p>{aboutJobs}</p>
       <p>{aboutSchool}</p>
-      <p class="note">{education.note}</p>
       <p>{governanceLine}</p>
     </div>
   </section>
@@ -57,20 +57,22 @@ const introRest = introSentence.replace(/^Taamir Khan/, "");
   <section class="section" id="experience">
     <h2 class="label">02 — Experience</h2>
     <div class="section-body">
-      <p class="note">Dates, titles, and figures in this section are from the résumé.</p>
       {
-        experience.map((role) => (
+        experience.map((role, index) => (
           <>
-            <h3 class="role-title">{role.title}</h3>
+            {index === 0 ? (
+              <p class="note note-lead">Dates, titles, and figures in this section are from the résumé.</p>
+            ) : null}
+            <h3 class:list={["role-title", index === 0 && "role-lead"]}>{role.title}</h3>
             <p class="meta">
               {role.org} · {role.dates}
             </p>
-            <ul>
+            <ul class="dash">
               {role.bullets.map((bullet) => (
                 <li>{bullet}</li>
               ))}
             </ul>
-            <p class="note">{role.note}</p>
+            {role.note ? <p class="note">{role.note}</p> : null}
           </>
         ))
       }
@@ -79,7 +81,6 @@ const introRest = introSentence.replace(/^Taamir Khan/, "");
         {education.school} · {education.degree} · GPA {education.gpa} · {education.dates}
       </p>
       <p>Coursework: {education.coursework}</p>
-      <p class="note">{education.note}</p>
     </div>
   </section>
 
