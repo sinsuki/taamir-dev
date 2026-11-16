@@ -19,7 +19,7 @@ const LIMITS = [
 export function decodeInput(raw, now = new Date()) {
   const text = String(raw ?? "").trim();
   if (!text) return { kind: "empty" };
-  if (/^\d+$/.test(text)) return decodeStamp(text);
+  if (/^\d+$/.test(text)) return decodeStamp(text, now);
   const fields = text.split(/\s+/);
   if (fields.length !== 5) {
     return { kind: "help", message: "Type five cron fields, like 0 9 * * 1-5, or a Unix timestamp." };
@@ -27,7 +27,7 @@ export function decodeInput(raw, now = new Date()) {
   try {
     const cron = parseCron(fields);
     const runs = nextRuns(cron, now, 5);
-    const formatted = runs.map((date) => formatLocal(date));
+    const formatted = runs.map((date) => formatLocal(date, now));
     return {
       kind: "cron",
       summary: describe(cron),
@@ -121,7 +121,7 @@ function token(raw, limit) {
   return value;
 }
 
-function decodeStamp(raw) {
+function decodeStamp(raw, now) {
   if (raw.length > 16) return { kind: "error", message: "That number is too long to be a Unix timestamp." };
   const value = Number(raw);
   if (!Number.isSafeInteger(value)) {
@@ -133,18 +133,25 @@ function decodeStamp(raw) {
     return { kind: "error", message: "That is not a Unix timestamp I can read. Use seconds or milliseconds." };
   }
   const unit = value >= 1_000_000_000_000 ? "milliseconds" : "seconds";
-  return { kind: "time", summary: `${formatLocal(date)} (${unit}).`, note: "In your local time." };
+  return { kind: "time", summary: `${formatLocal(date, now)} (${unit}).`, note: "In your local time." };
 }
 
-function formatLocal(date) {
-  return new Intl.DateTimeFormat(undefined, {
+function formatLocal(date, now) {
+  const parts = new Intl.DateTimeFormat("en", {
     weekday: "short",
-    month: "short",
     day: "numeric",
+    month: "short",
     year: "numeric",
-    hour: "numeric",
+    hour: "2-digit",
     minute: "2-digit",
-  }).format(date);
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const part = (type) => parts.find((item) => item.type === type)?.value ?? "";
+  const year = part("year");
+  const when = `${part("weekday")} ${part("day")} ${part("month")}${year === String(now.getFullYear()) ? "" : ` ${year}`}`;
+  const hour = part("hour").padStart(2, "0");
+  const minute = part("minute").padStart(2, "0");
+  return `${when}  ${hour}:${minute}`;
 }
 
 function describe(cron) {

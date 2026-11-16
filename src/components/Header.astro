@@ -45,26 +45,46 @@ const links = [
   </ul>
 </div>
 <div id="palette" class="palette" popover role="dialog" aria-labelledby="palette-label">
-  <label id="palette-label" class="kicker" for="palette-input">Palette</label>
-  <input id="palette-input" type="text" autocomplete="off" spellcheck="false" aria-controls="palette-result" />
+  <label id="palette-label" class="kicker" for="palette-input">Run</label>
+  <div class="run-line">
+    <span class="run-prompt" aria-hidden="true">/</span>
+    <input id="palette-input" type="text" autocomplete="off" spellcheck="false" aria-controls="palette-result" />
+  </div>
   <div id="palette-result" aria-live="polite">Type five cron fields, like 0 9 * * 1-5, or a Unix timestamp.</div>
 </div>
 <div id="hue-panel" class="hue-panel" popover aria-labelledby="hue-title">
-  <p class="kicker" id="hue-title">Palette</p>
-  <p><button type="button" data-theme-cycle>Switch theme</button></p>
-  <ul class="token-list">
+  <p class="kicker" id="hue-title">Theme</p>
+  <div class="segment" role="radiogroup" aria-label="Theme">
+    <label class="segment-option">
+      <input type="radio" name="color-theme" value="light" />
+      Light
+    </label>
+    <label class="segment-option">
+      <input type="radio" name="color-theme" value="dark" />
+      Dark
+    </label>
+    <label class="segment-option">
+      <input type="radio" name="color-theme" value="auto" checked />
+      Auto
+    </label>
+  </div>
+  <ul class="tone-list">
     {
-      ["paper", "sunk", "ink", "muted", "rule", "moss", "clay", "ochre", "forest", "forest-ink", "sage"].map((token) => (
+      [
+        ["ink", "Ink"],
+        ["muted", "Muted"],
+        ["moss", "Moss"],
+        ["clay", "Clay"],
+      ].map(([token, label]) => (
         <li>
-          <span class:list={["swatch", `swatch-${token}`]} data-token={token}></span>
-          <span>{token}</span>
-          <span data-contrast={token}></span>
+          <span class="tone-sample" data-token={token} data-measure="color">{label}</span>
+          <span data-contrast={token} data-pair="paper"></span>
         </li>
       ))
     }
   </ul>
-  <label for="hue-shift">Hue <span id="hue-value">0</span></label>
-  <input id="hue-shift" type="range" min="-60" max="60" step="1" value="0" />
+  <label for="hue-shift">Shift the greens <span id="hue-value">0</span></label>
+  <input id="hue-shift" class="range range-hue" type="range" min="-25" max="25" step="1" value="0" />
   <p>
     <button type="button" data-hue-reset>Reset</button>
     <a href="/play/palette-lab">Palette Lab</a>

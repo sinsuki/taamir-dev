@@ -2,8 +2,7 @@ import { channels, contrast } from "../lib/contrast.mjs";
 import { decodeInput } from "../lib/decode.mjs";
 import { leafCap, localDate, rememberVisit } from "../lib/plant.mjs";
 
-type Mode = "system" | "light" | "dark";
-const tokens = ["paper", "sunk", "ink", "muted", "rule", "moss", "clay", "ochre", "forest", "forest-ink", "sage"];
+type Mode = "auto" | "light" | "dark";
 type Payload = {
   state?: string;
   title?: string;
@@ -14,13 +13,11 @@ type Payload = {
   playedAgoMinutes?: number | null;
 };
 
-const modes: Mode[] = ["system", "light", "dark"];
+const modes: Mode[] = ["light", "dark", "auto"];
+const hueLimit = 25;
 
 export function initSite(): void {
-  document.querySelector("[data-theme-cycle]")?.addEventListener("click", () => {
-    cycleTheme();
-    paintTokens();
-  });
+  bindTheme();
   bindHue();
   document.addEventListener("keydown", onKey);
   document.addEventListener("visibilitychange", () => {
@@ -45,19 +42,42 @@ export function initSite(): void {
   if ("requestIdleCallback" in window) requestIdleCallback(start);
   else window.setTimeout(start, 300);
   growPlant();
+  paintTokens();
 }
 
-function cycleTheme(): void {
+function currentTheme(): Mode {
+  const value = document.documentElement.dataset.theme;
+  return value === "light" || value === "dark" ? value : "auto";
+}
+
+function applyTheme(mode: Mode): void {
   const root = document.documentElement;
-  const current: Mode = root.dataset.theme === "light" || root.dataset.theme === "dark" ? root.dataset.theme : "system";
-  const next = modes[(modes.indexOf(current) + 1) % modes.length] ?? "system";
-  if (next === "system") {
+  if (mode === "auto") {
     delete root.dataset.theme;
     localStorage.removeItem("theme");
   } else {
-    root.dataset.theme = next;
-    localStorage.setItem("theme", next);
+    root.dataset.theme = mode;
+    localStorage.setItem("theme", mode);
   }
+  for (const radio of document.querySelectorAll<HTMLInputElement>('input[name="color-theme"]')) {
+    radio.checked = radio.value === mode;
+  }
+  paintTokens();
+}
+
+function bindTheme(): void {
+  applyTheme(currentTheme());
+  for (const radio of document.querySelectorAll<HTMLInputElement>('input[name="color-theme"]')) {
+    radio.addEventListener("change", () => {
+      if (!radio.checked) return;
+      if (radio.value === "light" || radio.value === "dark" || radio.value === "auto") applyTheme(radio.value);
+    });
+  }
+}
+
+function cycleTheme(): void {
+  const next = modes[(modes.indexOf(currentTheme()) + 1) % modes.length] ?? "auto";
+  applyTheme(next);
 }
 
 let armed = false;
@@ -175,6 +195,7 @@ function paintPalette(value: string, result: HTMLElement): void {
   result.replaceChildren(summary);
   if (decoded.runs && decoded.runs.length > 0) {
     const list = document.createElement("ol");
+    list.className = "run-list";
     for (const run of decoded.runs) {
       const item = document.createElement("li");
       item.textContent = run;
@@ -207,7 +228,7 @@ function bindHue(): void {
     if (!(event instanceof ToggleEvent)) return;
     if (event.newState === "open") {
       paintTokens();
-      panel.querySelector<HTMLElement>("button, input, a")?.focus();
+      panel.querySelector<HTMLElement>('input[name="color-theme"]:checked')?.focus();
     } else {
       toggle?.focus();
     }
@@ -219,12 +240,14 @@ function readHue(): number {
   const raw = document.documentElement.style.getPropertyValue("--hue-shift");
   const value = Number.parseInt(raw, 10);
   if (!Number.isFinite(value)) return 0;
-  return Math.max(-60, Math.min(60, value));
+  return Math.max(-hueLimit, Math.min(hueLimit, value));
 }
 
 function applyHue(value: number): void {
+  const shiftValue = Math.max(-hueLimit, Math.min(hueLimit, Math.round(value)));
   const label = document.getElementById("hue-value");
-  if (label) label.textContent = String(value);
+  if (label) label.textContent = String(shiftValue);
+  value = shiftValue;
   if (value === 0) {
     document.documentElement.style.removeProperty("--hue-shift");
     try {
@@ -247,18 +270,28 @@ function paintTokens(): void {
   const body = getComputedStyle(document.body);
   const paper = channels(body.backgroundColor);
   const ink = channels(body.color);
-  for (const name of tokens) {
-    const swatch = document.querySelector<HTMLElement>(`[data-token="${name}"]`);
-    const out = document.querySelector(`[data-contrast="${name}"]`);
-    if (!swatch || !out) continue;
-    const rgb = channels(getComputedStyle(swatch).backgroundColor);
-    out.textContent = `${contrast(rgb, paper).toFixed(2)} on paper, ${contrast(rgb, ink).toFixed(2)} on ink`;
+  for (const out of document.querySelectorAll<HTMLElement>("[data-contrast]")) {
+    const source = out.parentElement?.querySelector<HTMLElement>("[data-token]");
+    if (!source) continue;
+    const style = getComputedStyle(source);
+    const rgb = channels(source.dataset.measure === "color" ? style.color : style.backgroundColor);
+    const onPaper = contrast(rgb, paper);
+    const onInk = contrast(rgb, ink);
+    if (out.dataset.pair === "paper") fillStamp(out, onPaper);
+    else out.replaceChildren(fillStamp(document.createElement("span"), onPaper), document.createTextNode(" paper "), fillStamp(document.createElement("span"), onInk), document.createTextNode(" ink"));
   }
 }
 
+function fillStamp(node: HTMLElement, ratio: number): HTMLElement {
+  const pass = ratio >= 4.5;
+  node.className = `contrast-stamp ${pass ? "pass" : "fail"}`;
+  node.textContent = `${ratio.toFixed(2)} · ${ratio >= 7 ? "AAA" : pass ? "AA" : "FAIL"}`;
+  return node;
+}
+
 function growPlant(): void {
-  const plant = document.querySelector<HTMLElement>("[data-plant]");
-  if (!plant) return;
+  const plants = document.querySelectorAll<HTMLElement>("[data-plant]");
+  if (plants.length === 0) return;
   let stored: unknown = [];
   try {
     stored = JSON.parse(localStorage.getItem("desk-plant") || "[]");
@@ -272,11 +305,15 @@ function growPlant(): void {
     /* the plant still shows the days already counted */
   }
   const count = Math.min(days.length, leafCap);
-  plant.dataset.leaves = String(count);
-  for (const leaf of plant.querySelectorAll<SVGElement>("[data-leaf]")) {
-    const index = Number(leaf.dataset.leaf);
-    leaf.toggleAttribute("hidden", index > count);
+  for (const plant of plants) {
+    plant.dataset.leaves = String(count);
+    for (const leaf of plant.querySelectorAll<SVGElement>("[data-leaf]")) {
+      const index = Number(leaf.dataset.leaf);
+      leaf.toggleAttribute("hidden", index > count);
+    }
   }
+  const caption = document.querySelector("[data-plant-caption]");
+  if (caption) caption.textContent = `day ${days.length} · grows a leaf each day you visit`;
 }
 
 function filterPosts(query: string): void {
