@@ -1,6 +1,6 @@
 export const email = "taamirkhan0622@gmail.com";
 export const linkedin = "https://www.linkedin.com/in/taamir-khan0622";
-export const github = "https://github.com/taamir-khan";
+export const github = "https://github.com/sinsuki";
 export const guardrailRepo = "https://github.com/sinsuki/guardrail-proxy";
 export const incidentRepo = "https://github.com/sinsuki/incident-responder";
 

@@ -5,11 +5,9 @@ import IncidentProject from "../components/IncidentProject.astro";
 import {
   aboutJobs,
   aboutSchool,
-  caresLine,
   contactLine,
   education,
   experience,
-  governanceLine,
   introSentence,
   playCaption,
   tellerLine,
@@ -26,7 +24,6 @@ const introRest = introSentence.replace(/^Taamir Khan/, "");
       <h1 id="intro-heading" class="intro-sentence">
         <strong>Taamir Khan</strong>{introRest}
       </h1>
-      <p class="lede">{caresLine}</p>
       <p><a href={`mailto:${email}`}>Email me <span class="arrow" aria-hidden="true"></span></a></p>
     </div>
     <div class="status">
@@ -50,7 +47,6 @@ const introRest = introSentence.replace(/^Taamir Khan/, "");
       <p>{aboutJobs}</p>
       <p>{aboutSchool}</p>
       <p class="note">{education.note}</p>
-      <p>{governanceLine}</p>
     </div>
   </section>
 
@@ -133,7 +129,7 @@ const introRest = introSentence.replace(/^Taamir Khan/, "");
       <ul>
         <li><a href={`mailto:${email}`}>{email}</a></li>
         <li><a href={linkedin}>linkedin.com/in/taamir-khan0622</a></li>
-        <li><a href={github}>github.com/taamir-khan</a></li>
+        <li><a href={github}>github.com/sinsuki</a></li>
       </ul>
     </div>
   </section>
