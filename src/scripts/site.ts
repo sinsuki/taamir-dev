@@ -214,7 +214,7 @@ function bindHue(): void {
   const current = readHue();
   slider.value = String(current);
   const label = document.getElementById("hue-value");
-  if (label) label.textContent = String(current);
+  if (label) label.textContent = formatHue(current);
   slider.addEventListener("input", () => {
     applyHue(Number(slider.value));
     paintTokens();
@@ -236,6 +236,11 @@ function bindHue(): void {
   if (!CSS.supports("color", "oklch(from red l c calc(h + 0))")) slider.disabled = true;
 }
 
+function formatHue(value: number): string {
+  if (value === 0) return "±0°";
+  return `${value > 0 ? "+" : "−"}${Math.abs(value)}°`;
+}
+
 function readHue(): number {
   const raw = document.documentElement.style.getPropertyValue("--hue-shift");
   const value = Number.parseInt(raw, 10);
@@ -246,7 +251,7 @@ function readHue(): number {
 function applyHue(value: number): void {
   const shiftValue = Math.max(-hueLimit, Math.min(hueLimit, Math.round(value)));
   const label = document.getElementById("hue-value");
-  if (label) label.textContent = String(shiftValue);
+  if (label) label.textContent = formatHue(shiftValue);
   value = shiftValue;
   if (value === 0) {
     document.documentElement.style.removeProperty("--hue-shift");
