@@ -1,0 +1,6 @@
+name = "taamir-dev"
+compatibility_date = "2026-11-16"
+pages_build_output_dir = "dist"
+
+[vars]
+SPOTIFY_CLIENT_ID = "90467d70b7ac4d80bf3ed272b25861a4"
