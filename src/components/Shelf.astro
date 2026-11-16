@@ -13,13 +13,25 @@ const { items } = Astro.props;
     <section class="band band-forest" id="play" aria-labelledby="play-title">
       <p class="kicker">IV · {items.length} objects</p>
       <h2 id="play-title" class="display">Play</h2>
-      <div class="spine-row">
-        {items.map((item, index) => (
-          <a class:list={["spine", `spine-${index % 6}`]} href={`/play/${item.slug}`} data-vt={`obj-${item.slug}`}>
-            <span class="spine-title">{item.title}</span>
-            <span class="spine-edition">{item.edition}</span>
-          </a>
-        ))}
+      <div class="shelf-stage">
+        <div class="spine-row">
+          {items.map((item, index) => (
+            <a
+              class:list={["spine", `spine-${index % 6}`]}
+              href={`/play/${item.slug}`}
+              data-vt={`obj-${item.slug}`}
+              aria-describedby={`pitch-${item.slug}`}
+            >
+              <span class="spine-title">{item.title}</span>
+              <span class="spine-edition">{item.edition}</span>
+            </a>
+          ))}
+        </div>
+        <div class="shelf-caption">
+          {items.map((item, index) => (
+            <p class:list={["shelf-pitch", `pitch-${index}`]} id={`pitch-${item.slug}`}>{item.pitch}</p>
+          ))}
+        </div>
       </div>
       <div class="shelf-plank" aria-hidden="true"></div>
     </section>

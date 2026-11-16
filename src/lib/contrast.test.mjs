@@ -12,6 +12,19 @@ test("the same color is 1 to 1", () => {
   assert.equal(contrast([20, 20, 20], [20, 20, 20]).toFixed(2), "1.00");
 });
 
+test("forest kickers clear 4.5:1 in both themes", () => {
+  const css = readFileSync(new URL("../styles/global.css", import.meta.url), "utf8");
+  const match = css.match(/\.band-forest \.kicker\s*\{[^}]*color:\s*color-mix\(in oklch,\s*var\(--forest-ink\)\s*(\d+)%\s*,\s*var\(--forest\)\)/);
+  assert.ok(match, "forest kickers should mix forest-ink into the forest");
+  const weight = Number(match[1]) / 100;
+  const tokens = readTokens(css);
+  for (const mode of ["light", "dark"]) {
+    const ink = mixOklch(tokens["forest-ink"][mode], tokens.forest[mode], weight);
+    const ratio = contrast(oklchToRgb(ink), oklchToRgb(tokens.forest[mode]));
+    assert.ok(ratio >= 4.5, `${mode} kicker is ${ratio.toFixed(2)}`);
+  }
+});
+
 test("each spine label clears 4.5:1 on its swatch in light and dark", () => {
   const css = readFileSync(new URL("../styles/global.css", import.meta.url), "utf8");
   const tokens = readTokens(css);
@@ -166,6 +179,17 @@ function resolve(value, mode, tokens) {
   }
   if (color.startsWith("oklch(")) return parseOklch(color);
   throw new Error(`unresolved color ${color}`);
+}
+
+function mixOklch(first, second, weight) {
+  let hueDelta = first[2] - second[2];
+  if (hueDelta > 180) hueDelta -= 360;
+  if (hueDelta < -180) hueDelta += 360;
+  return [
+    weight * first[0] + (1 - weight) * second[0],
+    weight * first[1] + (1 - weight) * second[1],
+    second[2] + weight * hueDelta,
+  ];
 }
 
 function parseOklch(value) {

@@ -9,12 +9,16 @@ import Base from "../../layouts/Base.astro";
       <h1 class="display">Daily Sudoku</h1>
       <p>One puzzle for this calendar day. Arrows move. 1–9 fills a cell. Pencil marks the candidates.</p>
     </header>
-    <p>
-      <button type="button" id="pencil">Pencil off</button>
-      <button type="button" id="hint">Hint</button>
-    </p>
-    <div id="board" class="sudoku" role="grid" aria-label="Sudoku"></div>
-    <p id="note" aria-live="polite"></p>
+    <div class="sudoku-layout">
+      <div id="board" class="sudoku" role="grid" aria-label="Sudoku"></div>
+      <div class="sudoku-side">
+        <p class="toy-controls">
+          <button type="button" class="toy-button" id="pencil" aria-pressed="false">Pencil: off</button>
+          <button type="button" class="toy-button" id="hint">Hint</button>
+        </p>
+        <p id="note" aria-live="polite"></p>
+      </div>
+    </div>
     <p><a href="/#play">Back to the shelf</a></p>
   </article>
 </Base>
@@ -52,6 +56,10 @@ import Base from "../../layouts/Base.astro";
         button.append(small);
       }
       button.toggleAttribute("data-given", given);
+      const row = Math.floor(index / 9) + 1;
+      const col = (index % 9) + 1;
+      const digit = values[index] ? `, ${values[index]}` : "";
+      button.setAttribute("aria-label", given ? `Row ${row} column ${col}${digit}, given` : `Row ${row} column ${col}${digit}`);
       button.tabIndex = index === cursor ? 0 : -1;
       button.removeAttribute("data-hint");
     });
@@ -104,9 +112,11 @@ import Base from "../../layouts/Base.astro";
     save();
     paint();
   }
-  document.getElementById("pencil")!.addEventListener("click", (event) => {
+  const pencilButton = document.getElementById("pencil") as HTMLButtonElement;
+  pencilButton.addEventListener("click", () => {
     pencil = !pencil;
-    (event.currentTarget as HTMLButtonElement).textContent = pencil ? "Pencil on" : "Pencil off";
+    pencilButton.setAttribute("aria-pressed", String(pencil));
+    pencilButton.textContent = pencil ? "Pencil: on" : "Pencil: off";
   });
   document.getElementById("hint")!.addEventListener("click", () => {
     const next = hint(values);
