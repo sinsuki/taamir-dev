@@ -25,7 +25,7 @@ const links = [
       {links.map((link) => <a href={link.href}>{link.label}</a>)}
     </nav>
   </details>
-  <button class="theme" type="button" data-theme-toggle>Theme</button>
+  <button class="theme" type="button" data-theme-toggle popovertarget="hue-panel">Theme</button>
   <button class="help" type="button" popovertarget="shortcuts" aria-label="Keyboard shortcuts">?</button>
 </header>
 <nav id="site-menu" class="menu-pop" popover aria-label="Sections">
@@ -48,4 +48,25 @@ const links = [
   <label id="palette-label" class="kicker" for="palette-input">Palette</label>
   <input id="palette-input" type="text" autocomplete="off" spellcheck="false" aria-controls="palette-result" />
   <div id="palette-result" aria-live="polite">Type five cron fields, like 0 9 * * 1-5, or a Unix timestamp.</div>
+</div>
+<div id="hue-panel" class="hue-panel" popover aria-labelledby="hue-title">
+  <p class="kicker" id="hue-title">Palette</p>
+  <p><button type="button" data-theme-cycle>Switch theme</button></p>
+  <ul class="token-list">
+    {
+      ["paper", "sunk", "ink", "muted", "rule", "moss", "clay", "ochre", "forest", "forest-ink", "sage"].map((token) => (
+        <li>
+          <span class:list={["swatch", `swatch-${token}`]} data-token={token}></span>
+          <span>{token}</span>
+          <span data-contrast={token}></span>
+        </li>
+      ))
+    }
+  </ul>
+  <label for="hue-shift">Hue <span id="hue-value">0</span></label>
+  <input id="hue-shift" type="range" min="-60" max="60" step="1" value="0" />
+  <p>
+    <button type="button" data-hue-reset>Reset</button>
+    <a href="/play/palette-lab">Palette Lab</a>
+  </p>
 </div>

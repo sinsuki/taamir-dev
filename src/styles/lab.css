@@ -1,0 +1,41 @@
+.lab {
+  max-width: 40rem;
+  padding-block: 2rem 4rem;
+}
+
+.lab-controls,
+.lab-readout {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.lab label {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.lab input[type="range"] { width: 100%; }
+
+.lab-swatches {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.lab-bar { height: 4.5rem; border: 1px solid var(--rule); }
+.lab-picked { background: var(--picked, var(--moss)); }
+.lab-flipped { background: oklch(from var(--picked, var(--moss)) calc(1 - l) c h); }
+
+.lab pre {
+  background: var(--sunk);
+  overflow-x: auto;
+  max-width: 100%;
+  padding: 0.6rem;
+  font-family: "Martian Mono", ui-monospace, monospace;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 480px) {
+  .lab-swatches { grid-template-columns: 1fr; }
+}

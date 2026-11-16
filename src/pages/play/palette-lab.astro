@@ -1,0 +1,100 @@
+---
+import "../../styles/lab.css";
+import Base from "../../layouts/Base.astro";
+---
+
+<Base title="Palette Lab · Taamir Khan" description="Pick a color in OKLCH and copy a light-dark pair.">
+  <article class="lab block">
+    <p class="kicker">Play</p>
+    <h1 class="display">Palette Lab</h1>
+    <p>Pick a color in OKLCH. The second swatch is the same color with lightness flipped, using relative color syntax.</p>
+    <div class="lab-controls">
+      <label>Lightness <span data-lab="l-out">70</span>
+        <input data-lab="l" type="range" min="0" max="100" step="1" value="70" />
+      </label>
+      <label>Chroma <span data-lab="c-out">0.100</span>
+        <input data-lab="c" type="range" min="0" max="0.4" step="0.001" value="0.1" />
+      </label>
+      <label>Hue <span data-lab="h-out">150</span>
+        <input data-lab="h" type="range" min="0" max="360" step="1" value="150" />
+      </label>
+    </div>
+    <div class="lab-swatches">
+      <div>
+        <div class="lab-bar lab-picked" data-lab="picked"></div>
+        <p data-lab="hex">#000000</p>
+        <p data-lab="picked-contrast"></p>
+      </div>
+      <div>
+        <div class="lab-bar lab-flipped" data-lab="flipped"></div>
+        <p>Flipped lightness</p>
+        <p data-lab="flipped-contrast"></p>
+      </div>
+    </div>
+    <p class="kicker" id="lab-pair-label">light-dark() pair</p>
+    <pre id="lab-pair" aria-labelledby="lab-pair-label"></pre>
+    <p><button type="button" id="lab-copy">Copy pair</button></p>
+    <p><a href="/">Back to the front</a></p>
+  </article>
+</Base>
+
+<script>
+  import { channels, contrast, hex } from "../../lib/contrast.mjs";
+
+  const root = document.documentElement;
+  const l = document.querySelector<HTMLInputElement>("[data-lab=l]")!;
+  const c = document.querySelector<HTMLInputElement>("[data-lab=c]")!;
+  const h = document.querySelector<HTMLInputElement>("[data-lab=h]")!;
+  const picked = document.querySelector<HTMLElement>("[data-lab=picked]")!;
+  const flipped = document.querySelector<HTMLElement>("[data-lab=flipped]")!;
+  const pair = document.getElementById("lab-pair")!;
+  const copy = document.getElementById("lab-copy")!;
+
+  function color() {
+    return `oklch(${l.value}% ${c.value} ${h.value})`;
+  }
+
+  function read(el: HTMLElement) {
+    return channels(getComputedStyle(el).backgroundColor);
+  }
+
+  function line(rgb: number[]) {
+    const paper = channels(getComputedStyle(document.body).backgroundColor);
+    const ink = channels(getComputedStyle(document.body).color);
+    return `${contrast(rgb, paper).toFixed(2)} on paper, ${contrast(rgb, ink).toFixed(2)} on ink`;
+  }
+
+  function paint() {
+    const value = color();
+    root.style.setProperty("--picked", value);
+    const lOut = document.querySelector("[data-lab=l-out]");
+    const cOut = document.querySelector("[data-lab=c-out]");
+    const hOut = document.querySelector("[data-lab=h-out]");
+    if (lOut) lOut.textContent = l.value;
+    if (cOut) cOut.textContent = Number(c.value).toFixed(3);
+    if (hOut) hOut.textContent = h.value;
+    const pickedRgb = read(picked);
+    const hexNode = document.querySelector("[data-lab=hex]");
+    if (hexNode) hexNode.textContent = hex(pickedRgb);
+    const pickedLine = document.querySelector("[data-lab=picked-contrast]");
+    const flippedLine = document.querySelector("[data-lab=flipped-contrast]");
+    if (pickedLine) pickedLine.textContent = line(pickedRgb);
+    if (flippedLine) flippedLine.textContent = line(read(flipped));
+    pair.textContent = `light-dark(${value}, oklch(from ${value} calc(1 - l) c h))`;
+  }
+
+  for (const input of [l, c, h]) input.addEventListener("input", paint);
+  copy.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(pair.textContent ?? "");
+    } catch {
+      return;
+    }
+    const previous = copy.textContent;
+    copy.textContent = "copied";
+    window.setTimeout(() => {
+      copy.textContent = previous;
+    }, 1200);
+  });
+  paint();
+</script>

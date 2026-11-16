@@ -41,7 +41,7 @@ const person = {
     <meta name="theme-color" content="#F2EEE3" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#121914" media="(prefers-color-scheme: dark)" />
     <script is:inline>
-      try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}
+      try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;var h=sessionStorage.getItem("hue");if(h&&/^-?(?:[0-5]?[0-9]|60)$/.test(h))document.documentElement.style.setProperty("--hue-shift",h)}catch(e){}
       document.documentElement.classList.add("js")
     </script>
     <title>{title}</title>

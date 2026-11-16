@@ -8,10 +8,10 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/check-content.mjs && node --test functions/spotify/*.test.mjs src/lib/decode.test.mjs",
+    "build": "astro build && node scripts/check-content.mjs && node --test functions/spotify/*.test.mjs src/lib/decode.test.mjs src/lib/contrast.test.mjs",
     "preview": "astro preview --host 127.0.0.1",
     "check": "node scripts/check-content.mjs",
-    "test": "node --test functions/spotify/*.test.mjs src/lib/decode.test.mjs"
+    "test": "node --test functions/spotify/*.test.mjs src/lib/decode.test.mjs src/lib/contrast.test.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.1.6",

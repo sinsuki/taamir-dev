@@ -123,6 +123,103 @@
   :root[data-theme="dark"] { color-scheme: dark; }
 }
 
+:root {
+  --hue-shift: 0;
+  --paper-base: oklch(94.9% 0.015 90.2);
+  --sunk-base: oklch(91.9% 0.023 112.3);
+  --ink-base: oklch(23.7% 0.017 155.7);
+  --muted-base: oklch(45.8% 0.02 129);
+  --rule-base: oklch(85% 0.027 113.9);
+  --moss-base: oklch(43.8% 0.075 153);
+  --clay-base: oklch(49.5% 0.128 40.6);
+  --ochre-base: oklch(75.1% 0.13 79.8);
+  --forest-base: oklch(32.4% 0.047 156.8);
+  --forest-ink-base: oklch(95% 0.019 113.3);
+  --sage-base: oklch(81.4% 0.051 127.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper-base: oklch(20.4% 0.014 153.9);
+    --sunk-base: oklch(24.8% 0.019 154.3);
+    --ink-base: oklch(92.3% 0.016 99);
+    --muted-base: oklch(72.2% 0.025 122.9);
+    --rule-base: oklch(33.4% 0.022 152.7);
+    --moss-base: oklch(77.9% 0.085 150.7);
+    --clay-base: oklch(73.6% 0.119 43.9);
+    --ochre-base: oklch(79.6% 0.119 82.6);
+    --forest-base: oklch(34.1% 0.05 155.7);
+    --sage-base: oklch(43.9% 0.047 151);
+  }
+}
+
+:root[data-theme="light"] {
+  --paper-base: oklch(94.9% 0.015 90.2);
+  --sunk-base: oklch(91.9% 0.023 112.3);
+  --ink-base: oklch(23.7% 0.017 155.7);
+  --muted-base: oklch(45.8% 0.02 129);
+  --rule-base: oklch(85% 0.027 113.9);
+  --moss-base: oklch(43.8% 0.075 153);
+  --clay-base: oklch(49.5% 0.128 40.6);
+  --ochre-base: oklch(75.1% 0.13 79.8);
+  --forest-base: oklch(32.4% 0.047 156.8);
+  --forest-ink-base: oklch(95% 0.019 113.3);
+  --sage-base: oklch(81.4% 0.051 127.5);
+}
+
+:root[data-theme="dark"] {
+  --paper-base: oklch(20.4% 0.014 153.9);
+  --sunk-base: oklch(24.8% 0.019 154.3);
+  --ink-base: oklch(92.3% 0.016 99);
+  --muted-base: oklch(72.2% 0.025 122.9);
+  --rule-base: oklch(33.4% 0.022 152.7);
+  --moss-base: oklch(77.9% 0.085 150.7);
+  --clay-base: oklch(73.6% 0.119 43.9);
+  --ochre-base: oklch(79.6% 0.119 82.6);
+  --forest-base: oklch(34.1% 0.05 155.7);
+  --sage-base: oklch(43.9% 0.047 151);
+}
+
+@supports (color: light-dark(#000, #fff)) {
+  :root {
+    --paper-base: light-dark(oklch(94.9% 0.015 90.2), oklch(20.4% 0.014 153.9));
+    --sunk-base: light-dark(oklch(91.9% 0.023 112.3), oklch(24.8% 0.019 154.3));
+    --ink-base: light-dark(oklch(23.7% 0.017 155.7), oklch(92.3% 0.016 99));
+    --muted-base: light-dark(oklch(45.8% 0.02 129), oklch(72.2% 0.025 122.9));
+    --rule-base: light-dark(oklch(85% 0.027 113.9), oklch(33.4% 0.022 152.7));
+    --moss-base: light-dark(oklch(43.8% 0.075 153), oklch(77.9% 0.085 150.7));
+    --clay-base: light-dark(oklch(49.5% 0.128 40.6), oklch(73.6% 0.119 43.9));
+    --ochre-base: light-dark(oklch(75.1% 0.13 79.8), oklch(79.6% 0.119 82.6));
+    --forest-base: light-dark(oklch(32.4% 0.047 156.8), oklch(34.1% 0.05 155.7));
+    --sage-base: light-dark(oklch(81.4% 0.051 127.5), oklch(43.9% 0.047 151));
+  }
+}
+
+@supports (color: oklch(from red l c calc(h + 0))) {
+  :root,
+  :root:not([data-theme="light"]),
+  :root[data-theme="light"],
+  :root[data-theme="dark"] {
+    --paper: oklch(from var(--paper-base) l c calc(h + var(--hue-shift)));
+    --sunk: oklch(from var(--sunk-base) l c calc(h + var(--hue-shift)));
+    --ink: oklch(from var(--ink-base) l c calc(h + var(--hue-shift)));
+    --muted: oklch(from var(--muted-base) l c calc(h + var(--hue-shift)));
+    --rule: oklch(from var(--rule-base) l c calc(h + var(--hue-shift)));
+    --moss: oklch(from var(--moss-base) l c calc(h + var(--hue-shift)));
+    --clay: oklch(from var(--clay-base) l c calc(h + var(--hue-shift)));
+    --ochre: oklch(from var(--ochre-base) l c calc(h + var(--hue-shift)));
+    --forest: oklch(from var(--forest-base) l c calc(h + var(--hue-shift)));
+    --forest-ink: oklch(from var(--forest-ink-base) l c calc(h + var(--hue-shift)));
+    --sage: oklch(from var(--sage-base) l c calc(h + var(--hue-shift)));
+  }
+}
+
+@property --hue-shift {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
 @property --soft {
   syntax: "<number>";
   inherits: true;
@@ -446,6 +543,37 @@ main > .hero,
 .desktop-nav { display: none; gap: 1rem; }
 .desktop-nav a { color: inherit; text-decoration: none; font-weight: 500; }
 
+.hue-panel {
+  inset: 4.5rem 1.25rem auto auto;
+  width: min(24rem, calc(100vw - 2.5rem));
+  max-height: min(80vh, 40rem);
+  overflow: auto;
+}
+
+.token-list { list-style: none; margin: 0.75rem 0; padding: 0; }
+.token-list li {
+  display: grid;
+  grid-template-columns: 1.25rem 5.5rem minmax(0, 1fr);
+  gap: 0.4rem;
+  align-items: center;
+  margin: 0.28rem 0;
+  font-size: 0.85rem;
+}
+.swatch { width: 1.25rem; height: 1.25rem; border: 1px solid var(--rule); }
+.swatch-paper { background: var(--paper); }
+.swatch-sunk { background: var(--sunk); }
+.swatch-ink { background: var(--ink); }
+.swatch-muted { background: var(--muted); }
+.swatch-rule { background: var(--rule); }
+.swatch-moss { background: var(--moss); }
+.swatch-clay { background: var(--clay); }
+.swatch-ochre { background: var(--ochre); }
+.swatch-forest { background: var(--forest); }
+.swatch-forest-ink { background: var(--forest-ink); }
+.swatch-sage { background: var(--sage); }
+.hue-panel input[type="range"] { width: 100%; }
+.hue-panel p { display: flex; gap: 0.8rem; align-items: center; }
+
 .menu-button, .theme, .help, .menu-fallback summary {
   min-height: 44px;
   display: inline-flex;
@@ -454,7 +582,7 @@ main > .hero,
 
 .menu-button, .menu-fallback { margin-inline-start: auto; }
 
-.menu-pop, .help-pop, .now-pop, .palette {
+.menu-pop, .help-pop, .now-pop, .palette, .hue-panel {
   background: var(--paper);
   color: var(--ink);
   border: 1px solid var(--rule);

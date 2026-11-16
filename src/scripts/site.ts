@@ -1,6 +1,8 @@
+import { channels, contrast } from "../lib/contrast.mjs";
 import { decodeInput } from "../lib/decode.mjs";
 
 type Mode = "system" | "light" | "dark";
+const tokens = ["paper", "sunk", "ink", "muted", "rule", "moss", "clay", "ochre", "forest", "forest-ink", "sage"];
 type Payload = {
   state?: string;
   title?: string;
@@ -14,8 +16,11 @@ type Payload = {
 const modes: Mode[] = ["system", "light", "dark"];
 
 export function initSite(): void {
-  const toggle = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
-  toggle?.addEventListener("click", () => cycleTheme());
+  document.querySelector("[data-theme-cycle]")?.addEventListener("click", () => {
+    cycleTheme();
+    paintTokens();
+  });
+  bindHue();
   document.addEventListener("keydown", onKey);
   document.addEventListener("visibilitychange", () => {
     document.documentElement.classList.toggle("paused", document.visibilityState === "hidden");
@@ -176,6 +181,77 @@ function paintPalette(value: string, result: HTMLElement): void {
     result.append(list);
   }
   if (decoded.note) result.append(note);
+}
+
+function bindHue(): void {
+  const panel = document.getElementById("hue-panel");
+  const slider = document.querySelector<HTMLInputElement>("#hue-shift");
+  const toggle = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+  if (!panel || !slider) return;
+  const current = readHue();
+  slider.value = String(current);
+  const label = document.getElementById("hue-value");
+  if (label) label.textContent = String(current);
+  slider.addEventListener("input", () => {
+    applyHue(Number(slider.value));
+    paintTokens();
+  });
+  document.querySelector("[data-hue-reset]")?.addEventListener("click", () => {
+    slider.value = "0";
+    applyHue(0);
+    paintTokens();
+  });
+  panel.addEventListener("toggle", (event) => {
+    if (!(event instanceof ToggleEvent)) return;
+    if (event.newState === "open") {
+      paintTokens();
+      panel.querySelector<HTMLElement>("button, input, a")?.focus();
+    } else {
+      toggle?.focus();
+    }
+  });
+  if (!CSS.supports("color", "oklch(from red l c calc(h + 0))")) slider.disabled = true;
+}
+
+function readHue(): number {
+  const raw = document.documentElement.style.getPropertyValue("--hue-shift");
+  const value = Number.parseInt(raw, 10);
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(-60, Math.min(60, value));
+}
+
+function applyHue(value: number): void {
+  const label = document.getElementById("hue-value");
+  if (label) label.textContent = String(value);
+  if (value === 0) {
+    document.documentElement.style.removeProperty("--hue-shift");
+    try {
+      sessionStorage.removeItem("hue");
+    } catch {
+      /* the palette still resets for this view */
+    }
+    return;
+  }
+  const shift = String(value);
+  document.documentElement.style.setProperty("--hue-shift", shift);
+  try {
+    sessionStorage.setItem("hue", shift);
+  } catch {
+    /* session storage can be blocked; the shift still applies */
+  }
+}
+
+function paintTokens(): void {
+  const body = getComputedStyle(document.body);
+  const paper = channels(body.backgroundColor);
+  const ink = channels(body.color);
+  for (const name of tokens) {
+    const swatch = document.querySelector<HTMLElement>(`[data-token="${name}"]`);
+    const out = document.querySelector(`[data-contrast="${name}"]`);
+    if (!swatch || !out) continue;
+    const rgb = channels(getComputedStyle(swatch).backgroundColor);
+    out.textContent = `${contrast(rgb, paper).toFixed(2)} on paper, ${contrast(rgb, ink).toFixed(2)} on ink`;
+  }
 }
 
 function filterPosts(query: string): void {
