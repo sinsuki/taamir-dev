@@ -13,13 +13,15 @@ const rows: Role[] = [...jobs, school];
         <div class="row">
           <details id={role.id}>
             <summary>
-              <span class="dates">{role.dates}</span>
-              <span class="role">
-                {role.org}
-                <small>{role.title}</small>
+              <span class="row-main">
+                <span class="dates">{role.dates}</span>
+                <span class="role">
+                  {role.org}
+                  <small>{role.title}</small>
+                </span>
+                <span class="line">{role.line}</span>
+                <span class="plus" aria-hidden="true">+</span>
               </span>
-              <span class="line">{role.line}</span>
-              <span class="plus" aria-hidden="true">+</span>
             </summary>
             <ul>
               {role.bullets.map((bullet) => (

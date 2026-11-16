@@ -104,7 +104,20 @@ const incidentStamps: Stamp[] = incidentNames.map((name, index) => {
   };
 });
 
-const demoRuns = metrics.demo_runtime_seconds.runs.join(" s and ");
+const proxyAllow = requireRow(
+  metrics.median_ns_per_op.find((row) => row.path.startsWith("proxy allow")),
+  "proxy allow",
+);
+const proxyApproval = requireRow(
+  metrics.median_ns_per_op.find((row) => row.path.startsWith("proxy approval")),
+  "proxy approval",
+);
+const approvalAddedNs = proxyApproval.ns_op - proxyAllow.ns_op;
+
+function formatMicros(ns: number): string {
+  const tenths = Math.round(ns / 100);
+  return `${Math.trunc(tenths / 10)}.${Math.abs(tenths % 10)}`;
+}
 
 export const guardrail: Project = {
   id: "guardrail",
@@ -146,11 +159,9 @@ export const guardrail: Project = {
   },
   hood: [
     "All five milestones are merged.",
-    "The full approval round trip over localhost adds about 112 µs (162,754 vs 51,058 ns/op). That 112 µs is the difference between the two medians, not a separate benchmark.",
-    metrics.notes,
+    `The full approval round trip over localhost adds ${formatMicros(approvalAddedNs)} µs (${formatMicros(proxyApproval.ns_op)} µs vs ${formatMicros(proxyAllow.ns_op)} µs). That is the difference between the two medians, not a separate benchmark.`,
     "On the labeled corpus there were 0 false positives and 0 misses on the 12 things it is built to catch. It still misses a personal name, a street address, an obfuscated email.",
     "Verifying 10,000 entries takes a median of 421.05 ms. Writing an entry is slower because it is saved to disk before the call returns.",
-    `The built demo binary ran end to end in ${demoRuns} s, not counting compilation. Two runs, not a benchmark. ${metrics.demo_runtime_seconds.note}.`,
     "go test, go vet, and the race detector all pass.",
   ],
   commands: ["make demo", "go test -bench ."],

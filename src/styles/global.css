@@ -379,16 +379,25 @@ main > .hero,
 .on-air[data-state="recent"] .eq { opacity: 0.6; }
 
 .air-track {
+  display: flex;
+  align-items: baseline;
   min-width: 0;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   font-size: 0.875rem;
   font-weight: 500;
 }
 
-.air-track .who { font-weight: 400; opacity: 0.8; }
-.air-ago { color: var(--ochre); }
+.air-title,
+.air-artist {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.air-title { flex: 0 1 auto; }
+.air-artist { flex: 0 100 auto; font-weight: 400; opacity: 0.8; }
+.air-ago { flex: none; white-space: nowrap; color: var(--ochre); }
 
 .air-link { color: var(--ochre); flex: none; text-decoration: none; }
 
@@ -536,12 +545,21 @@ main > .hero,
 }
 
 .row summary {
+  display: list-item;
+  list-style: none;
+  padding-block: 0.9rem;
+}
+
+.row-main {
   display: grid;
   grid-template-columns: 8.5rem minmax(0, 1.1fr) minmax(0, 1.4fr) auto;
   gap: 0.75rem 1rem;
   align-items: baseline;
-  padding-block: 0.9rem;
-  list-style: none;
+}
+
+.row summary:focus-visible {
+  outline: 2px solid var(--moss);
+  outline-offset: 3px;
 }
 
 .row summary::-webkit-details-marker { display: none; }
@@ -781,7 +799,7 @@ html.paused .eq i { animation: none; }
   .hero, .block { padding-inline: 1.25rem; }
   .hero { display: block; }
   .sun { width: 9rem; height: 9rem; top: -3.5rem; right: -3.5rem; }
-  .row summary { grid-template-columns: 1fr auto; }
+  .row-main { grid-template-columns: 1fr auto; }
   .row .line, .row .role { grid-column: 1 / -1; }
   .field-index { grid-template-columns: 1fr 1fr; }
   .desktop-nav { display: none; }
