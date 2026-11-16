@@ -73,7 +73,13 @@ export type ShelfItem = {
   edition: string;
 };
 
-export const shelfItems: ShelfItem[] = [];
+export const shelfItems: ShelfItem[] = [
+  { slug: "sudoku", title: "Daily Sudoku", pitch: "One puzzle a day, with pencil marks and hints that name the technique.", edition: "No. 01" },
+  { slug: "tic-tac-toe", title: "Tic-tac-toe", pitch: "A perfect game. Turn on its thinking to see each square's score.", edition: "No. 02" },
+  { slug: "palette-lab", title: "Palette Lab", pitch: "Pick a color in OKLCH, check contrast, and copy a light-dark() pair.", edition: "No. 03" },
+  { slug: "cron", title: "Cron decoder", pitch: "Paste a cron expression or a Unix timestamp and read it in your local time.", edition: "No. 04" },
+  { slug: "desk-plant", title: "Desk plant", pitch: "A leaf for each day you visit. It stays on this device.", edition: "No. 05" },
+];
 export const showShelf = shelfItems.length > 0;
 
 for (const role of [...jobs, school]) {

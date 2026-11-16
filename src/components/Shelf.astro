@@ -16,7 +16,8 @@ const { items } = Astro.props;
       <div class="spine-row">
         {items.map((item, index) => (
           <a class:list={["spine", `spine-${index % 6}`]} href={`/play/${item.slug}`} data-vt={`obj-${item.slug}`}>
-            <span>{item.title}</span>
+            <span class="spine-title">{item.title}</span>
+            <span class="spine-edition">{item.edition}</span>
           </a>
         ))}
       </div>

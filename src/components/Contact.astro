@@ -1,8 +1,9 @@
 ---
-import { contactLine, email, github, linkedin } from "../content/site";
+import { contactLine, email, github, linkedin, showShelf } from "../content/site";
 ---
 
 <section class="band band-forest contact" id="contact" aria-labelledby="contact-title">
+  <p class="kicker">{showShelf ? "V" : "IV"} · email</p>
   <h2 id="contact-title" class="display">{contactLine}</h2>
   <p>
     <a href={`mailto:${email}`}>{email}</a>

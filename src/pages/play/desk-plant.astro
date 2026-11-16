@@ -1,0 +1,46 @@
+---
+import Base from "../../layouts/Base.astro";
+---
+
+<Base title="Desk plant · Play" description="A leaf for each day you visit. It stays on this device.">
+  <article class="play-desk block">
+    <header data-vt="obj-desk-plant">
+      <p class="kicker">No. 05</p>
+      <h1 class="display">Desk plant</h1>
+      <p>One leaf for each calendar day you open the site. Nine leaves is as tall as it gets.</p>
+    </header>
+    <div class="desk-plant" data-plant role="img" aria-label="Desk plant">
+      <svg viewBox="0 0 56 72" aria-hidden="true">
+        <path d="M28 68V28" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+        <path data-leaf="1" hidden d="M28 58c-10-2-16-10-12-16" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+        <path data-leaf="2" hidden d="M28 52c10-2 16-8 12-14" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+        <path data-leaf="3" hidden d="M28 46c-12-1-16-12-10-16" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+        <path data-leaf="4" hidden d="M28 40c11-1 15-10 9-14" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+        <path data-leaf="5" hidden d="M28 34c-10 0-14-8-8-12" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+        <path data-leaf="6" hidden d="M28 30c9 0 12-6 7-10" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+        <path data-leaf="7" hidden d="M28 26c-8 1-10-5-5-8" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+        <path data-leaf="8" hidden d="M28 24c7 1 9-4 5-7" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+        <path data-leaf="9" hidden d="M28 22c-4-6 4-10 0-12" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      </svg>
+    </div>
+    <p id="plant-note" aria-live="polite"></p>
+    <p><a href="/#play">Back to the shelf</a></p>
+  </article>
+</Base>
+<script>
+  import { leafCap, localDate, rememberVisit } from "../../lib/plant.mjs";
+
+  const plant = document.querySelector<HTMLElement>("[data-plant]");
+  const note = document.getElementById("plant-note");
+  if (plant) {
+    let stored: unknown = [];
+    try { stored = JSON.parse(localStorage.getItem("desk-plant") || "[]"); } catch { stored = []; }
+    const days = rememberVisit(Array.isArray(stored) ? stored : [], localDate());
+    try { localStorage.setItem("desk-plant", JSON.stringify(days)); } catch { /* the drawing still updates */ }
+    const count = Math.min(days.length, leafCap);
+    for (const leaf of plant.querySelectorAll<SVGElement>("[data-leaf]")) {
+      leaf.toggleAttribute("hidden", Number(leaf.dataset.leaf) > count);
+    }
+    if (note) note.textContent = count === 1 ? "1 leaf." : `${count} leaves.`;
+  }
+</script>

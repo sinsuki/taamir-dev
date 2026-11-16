@@ -1,0 +1,48 @@
+---
+import Base from "../../layouts/Base.astro";
+---
+
+<Base title="Cron decoder · Play" description="Paste a cron expression or a Unix timestamp and read it in your local time.">
+  <article class="play-desk block">
+    <header data-vt="obj-cron">
+      <p class="kicker">No. 04</p>
+      <h1 class="display">Cron decoder</h1>
+      <p>Five fields, like 0 9 * * 1-5, or a Unix timestamp in seconds or milliseconds.</p>
+    </header>
+    <label class="kicker" for="cron-input">Expression</label>
+    <input id="cron-input" type="text" autocomplete="off" spellcheck="false" aria-controls="cron-result" />
+    <div id="cron-result" aria-live="polite"></div>
+    <p><a href="/#play">Back to the shelf</a></p>
+  </article>
+</Base>
+<script>
+  import { decodeInput } from "../../lib/decode.mjs";
+
+  const input = document.getElementById("cron-input") as HTMLInputElement;
+  const result = document.getElementById("cron-result")!;
+  input.addEventListener("input", () => {
+    const decoded = decodeInput(input.value);
+    result.replaceChildren();
+    if (decoded.kind === "empty" || decoded.kind === "help" || decoded.kind === "error") {
+      result.textContent = decoded.message || "Type five cron fields, like 0 9 * * 1-5, or a Unix timestamp.";
+      return;
+    }
+    const summary = document.createElement("p");
+    summary.textContent = decoded.summary ?? "";
+    result.append(summary);
+    if (decoded.runs?.length) {
+      const list = document.createElement("ol");
+      for (const run of decoded.runs) {
+        const item = document.createElement("li");
+        item.textContent = run;
+        list.append(item);
+      }
+      result.append(list);
+    }
+    if (decoded.note) {
+      const note = document.createElement("p");
+      note.textContent = decoded.note;
+      result.append(note);
+    }
+  });
+</script>

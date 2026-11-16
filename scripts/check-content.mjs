@@ -107,7 +107,9 @@ if (caveatCount !== 1) failures.push(`Approval caveat appears ${caveatCount} tim
 for (const raw of ["162,754", "51,058", "111,696", "0.027"]) {
   if (html.includes(raw)) failures.push(`Raw approval or demo figure still shown: ${raw}`);
 }
-if (html.includes('id="play"')) failures.push("Empty shelf is on the page");
+if (!html.includes('id="play"')) failures.push("Play shelf is missing");
+if (!html.includes(">V<")) failures.push("Contact should be section V");
+if (!html.includes("Daily Sudoku") || !html.includes("Tic-tac-toe")) failures.push("Shelf is missing its games");
 const postTitle = "Spending fewer tokens: a practical guide to cheaper LLM apps";
 if (!html.includes(postTitle)) failures.push("Home writing band is missing the token post");
 if (html.includes("First posts coming soon.")) failures.push("Empty writing state is still on the home page");

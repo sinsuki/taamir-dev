@@ -135,6 +135,8 @@
   --ochre-base: oklch(75.1% 0.13 79.8);
   --forest-base: oklch(32.4% 0.047 156.8);
   --forest-ink-base: oklch(95% 0.019 113.3);
+  --spine-ink-base: oklch(23.7% 0.017 155.7);
+  --spine-ink: oklch(23.7% 0.017 155.7);
   --sage-base: oklch(81.4% 0.051 127.5);
 }
 
@@ -210,6 +212,7 @@
     --ochre: oklch(from var(--ochre-base) l c calc(h + var(--hue-shift)));
     --forest: oklch(from var(--forest-base) l c calc(h + var(--hue-shift)));
     --forest-ink: oklch(from var(--forest-ink-base) l c calc(h + var(--hue-shift)));
+    --spine-ink: oklch(from var(--spine-ink-base) l c calc(h + var(--hue-shift)));
     --sage: oklch(from var(--sage-base) l c calc(h + var(--hue-shift)));
   }
 }
@@ -860,12 +863,57 @@ main > .hero,
   height: 6px;
   margin-top: 1rem;
   background: #8a6420;
+  background: oklch(from var(--ochre) calc(l - 0.25) c h);
 }
+
+.play-desk { padding-block: 2rem 4rem; }
+.play-desk .desk-plant { color: var(--ink); }
+.play-desk input { width: min(100%, 28rem); margin: 0.4rem 0 1rem; padding: 0.45rem; border: 1px solid var(--rule); background: var(--sunk); color: var(--ink); font: inherit; }
+.sudoku, .ttt {
+  display: grid;
+  gap: 2px;
+  margin: 1rem 0;
+  aspect-ratio: 1;
+}
+.sudoku {
+  grid-template-rows: repeat(9, minmax(0, 1fr));
+  width: min(100%, calc(9 * 2.2rem + 8 * 2px));
+}
+.ttt {
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  width: min(100%, calc(3 * 4.5rem + 2 * 2px));
+}
+.sudoku [role="row"], .ttt [role="row"] {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  min-height: 0;
+}
+.sudoku [role="row"] { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+.ttt [role="row"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.sudoku button, .ttt button {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  font-variant-numeric: tabular-nums;
+}
+.sudoku button[data-given] { background: var(--sunk); }
+.sudoku button[data-hint] { outline: 2px solid var(--clay); }
+.sudoku .marks { display: block; font-size: 0.55rem; letter-spacing: 0; }
+.ttt button[data-score="1"] { background: color-mix(in oklch, var(--clay) 55%, var(--paper)); }
+.ttt button[data-score="0"] { background: color-mix(in oklch, var(--sage) 55%, var(--paper)); }
+.ttt button[data-score="-1"] { background: color-mix(in oklch, var(--ink) 12%, var(--paper)); }
 
 .spine-row {
   display: flex;
   align-items: flex-end;
   gap: 0.6rem;
+  min-width: 0;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   padding-bottom: 0.25rem;
@@ -873,30 +921,41 @@ main > .hero,
 
 .spine {
   flex: none;
-  width: 4.5rem;
+  width: 4.75rem;
   height: 16rem;
   scroll-snap-align: start;
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
   text-decoration: none;
-  color: var(--ink);
-  padding: 0.6rem 0.3rem;
+  color: inherit;
+  padding: 0.7rem 0.3rem;
 }
 
-.spine-0 { background: var(--moss); color: var(--paper); }
-.spine-1 { background: var(--clay); color: var(--paper); }
-.spine-2 { background: var(--ochre); color: #18211b; }
-.spine-3 { background: var(--sage); color: var(--ink); }
-.spine-4 { background: var(--paper); color: var(--ink); }
-.spine-5 { background: var(--forest); color: var(--forest-ink); }
+.band-forest a.spine-0,
+.band-forest a.spine-0:hover { background: var(--moss); color: light-dark(var(--forest-ink), var(--spine-ink)); }
+.band-forest a.spine-1,
+.band-forest a.spine-1:hover { background: var(--clay); color: light-dark(var(--forest-ink), var(--spine-ink)); }
+.band-forest a.spine-2,
+.band-forest a.spine-2:hover { background: var(--ochre); color: var(--spine-ink); }
+.band-forest a.spine-3,
+.band-forest a.spine-3:hover { background: var(--sage); color: light-dark(var(--spine-ink), var(--forest-ink)); }
+.band-forest a.spine-4,
+.band-forest a.spine-4:hover { background: var(--paper); color: light-dark(var(--spine-ink), var(--forest-ink)); }
+.band-forest a.spine-5,
+.band-forest a.spine-5:hover { background: var(--forest); color: var(--forest-ink); }
 
-.spine span {
+.spine-title {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   font-family: Fraunces, Georgia, serif;
-  font-size: 8cqi;
+  font-size: 1.15rem;
   font-weight: 560;
+}
+.spine-edition {
+  font-family: "Martian Mono", monospace;
+  font-size: 0.65rem;
 }
 
 html.paused .eq i { animation: none; }
