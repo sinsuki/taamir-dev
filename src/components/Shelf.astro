@@ -1,0 +1,26 @@
+---
+import type { ShelfItem } from "../content/site";
+
+interface Props {
+  items: ShelfItem[];
+}
+
+const { items } = Astro.props;
+---
+
+{
+  items.length > 0 && (
+    <section class="band band-forest" id="play" aria-labelledby="play-title">
+      <p class="kicker">IV · {items.length} objects</p>
+      <h2 id="play-title" class="display">Play</h2>
+      <div class="spine-row">
+        {items.map((item, index) => (
+          <a class:list={["spine", `spine-${index % 6}`]} href={`/play/${item.slug}`} data-vt={`obj-${item.slug}`}>
+            <span>{item.title}</span>
+          </a>
+        ))}
+      </div>
+      <div class="shelf-plank" aria-hidden="true"></div>
+    </section>
+  )
+}

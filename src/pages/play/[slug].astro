@@ -1,0 +1,19 @@
+---
+import Base from "../../layouts/Base.astro";
+import { shelfItems } from "../../content/site";
+
+export function getStaticPaths() {
+  return shelfItems.map((item) => ({ params: { slug: item.slug }, props: { item } }));
+}
+
+const { item } = Astro.props;
+---
+
+<Base title={`${item.title} · Play`} description={item.pitch}>
+  <header class="band-sunk block" data-vt={`obj-${item.slug}`}>
+    <p class="kicker">{item.edition}</p>
+    <h1 class="display">{item.title}</h1>
+    <p>{item.pitch}</p>
+    <p><a href="/#play">Back to the shelf</a></p>
+  </header>
+</Base>

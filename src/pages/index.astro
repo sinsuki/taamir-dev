@@ -1,148 +1,28 @@
 ---
 import Base from "../layouts/Base.astro";
-import GuardrailProject from "../components/GuardrailProject.astro";
-import IncidentProject from "../components/IncidentProject.astro";
-import {
-  aboutJobs,
-  aboutSchool,
-  contactLine,
-  education,
-  experience,
-  introSentence,
-  playCaption,
-  tellerLine,
-} from "../content/copy";
-import { email, github, linkedin } from "../content/links";
+import Contact from "../components/Contact.astro";
+import Hero from "../components/Hero.astro";
+import Ledger from "../components/Ledger.astro";
+import Plate from "../components/Plate.astro";
+import Shelf from "../components/Shelf.astro";
+import Writing from "../components/Writing.astro";
+import { guardrail, incident, projects } from "../content/projects";
+import { shelfItems, showShelf } from "../content/site";
+import { getPublished } from "../lib/posts";
 
-// TODO: add a résumé PDF to the status block when a file is available.
-const introRest = introSentence.replace(/^Taamir Khan/, "");
+const posts = await getPublished();
 ---
 
-<Base>
-  <section class="intro" id="top" aria-labelledby="intro-heading">
-    <div class="intro-copy">
-      <h1 id="intro-heading" class="intro-sentence">
-        <strong>Taamir Khan</strong>{introRest}
-      </h1>
-      <p><a href={`mailto:${email}`}>Email me <span class="arrow" aria-hidden="true"></span></a></p>
-    </div>
-    <div class="status">
-      <p><span class="k">now:</span> Software Engineer II, Argo Data</p>
-      <p>
-        <span class="k">building:</span>
-        <a href="#guardrail">guardrail-proxy</a> · <a href="#incident">incident-responder</a>
-      </p>
-      <p>
-        <span class="k">reach:</span>
-        <a href={`mailto:${email}`}>email</a> · <a href={github}>github</a> · <a href={linkedin}>linkedin</a>
-        <span class="caret" aria-hidden="true"></span>
-      </p>
-    </div>
+<Base jsonLd>
+  <Hero />
+  <Ledger />
+  <section class="block" id="projects" aria-labelledby="projects-title">
+    <p class="kicker">II · {projects.length} builds</p>
+    <h2 id="projects-title" class="display">Projects</h2>
+    <Plate project={guardrail} />
+    <Plate project={incident} />
   </section>
-
-  <section class="section" id="about">
-    <h2 class="label">01 — About</h2>
-    <div class="section-body">
-      <p>{tellerLine}</p>
-      <p>{aboutJobs}</p>
-      <p>{aboutSchool}</p>
-      <p class="note">{education.note}</p>
-    </div>
-  </section>
-
-  <section class="section" id="experience">
-    <h2 class="label">02 — Experience</h2>
-    <div class="section-body">
-      <p class="note">Dates, titles, and figures in this section are from the résumé.</p>
-      {
-        experience.map((role) => (
-          <>
-            <h3 class="role-title">{role.title}</h3>
-            <p class="meta">
-              {role.org} · {role.dates}
-            </p>
-            <ul>
-              {role.bullets.map((bullet) => (
-                <li>{bullet}</li>
-              ))}
-            </ul>
-            <p class="note">{role.note}</p>
-          </>
-        ))
-      }
-      <h3 class="role-title">Education</h3>
-      <p class="meta">
-        {education.school} · {education.degree} · GPA {education.gpa} · {education.dates}
-      </p>
-      <p>Coursework: {education.coursework}</p>
-      <p class="note">{education.note}</p>
-    </div>
-  </section>
-
-  <section class="section" id="projects">
-    <h2 class="label">03 — Projects</h2>
-    <div class="section-body">
-      <GuardrailProject />
-      <IncidentProject />
-    </div>
-  </section>
-
-  <section class="section" id="play">
-    <h2 class="label">04 — Play</h2>
-    <div class="section-body">
-      <p>{playCaption}</p>
-      <div class="toy" id="transfer-toy">
-        <h3 class="toy-title">Does this transfer go through?</h3>
-        <p class="plain">A toy version of the real rule engine.</p>
-        <p>
-          Enter cents, or type a decimal. 50000 cents is $500.00. One cent more needs approval. A
-          decimal point is rejected.
-        </p>
-        <form>
-          <label for="amount">Amount</label>
-          <input id="amount" name="amount" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" value="50000" />
-          <label for="amount-range">Slider, in cents, through $500.01</label>
-          <input id="amount-range" type="range" min="0" max="50001" step="1" value="50000" />
-          <div class="presets">
-            <button type="button" data-amount="50000">$500.00</button>
-            <button type="button" data-amount="50001">$500.01</button>
-            <button type="button" data-amount="500.00">500.00</button>
-          </div>
-          <p id="toy-readout" class="readout" aria-live="polite">
-            <span class="stamp stamp-allow">allow</span>
-            Allow. $500.00 is not over $500.00.
-          </p>
-        </form>
-      </div>
-      <p class="note">
-        A toy version of the real rule engine. Transfers over $500 need human approval, and a float
-        string is rejected. The slider ends at 50001 cents, which is $500.01. It is not a measured
-        limit.
-      </p>
-    </div>
-  </section>
-
-  <section class="section" id="contact">
-    <h2 class="label">05 — Contact</h2>
-    <div class="section-body">
-      <p>{contactLine}</p>
-      <ul>
-        <li><a href={`mailto:${email}`}>{email}</a></li>
-        <li><a href={linkedin}>linkedin.com/in/taamir-khan0622</a></li>
-        <li><a href={github}>github.com/sinsuki</a></li>
-      </ul>
-    </div>
-  </section>
-
-  <Fragment slot="footer">
-    <h2 class="label">Colophon</h2>
-    <p>
-      Set in <a href="https://github.com/productiontype/Newsreader">Newsreader</a>, by Production Type,
-      and <a href="https://github.com/IBM/plex">IBM Plex Mono</a>, by Mike Abbink and Bold Monday. Both
-      are used under the SIL Open Font License 1.1.
-    </p>
-    <p>Built with Astro and TypeScript. The CSS is hand-written. Hosted as a static site on Cloudflare Pages.</p>
-    <p id="colophon-measured" class="measured">Measured at build.</p>
-    <p id="colophon-updated" class="measured"></p>
-  </Fragment>
+  <Writing posts={posts} />
+  {showShelf && <Shelf items={shelfItems} />}
+  <Contact />
 </Base>

@@ -1,0 +1,33 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { formatDay, getPublished, readingMinutes } from "../../../lib/posts";
+
+export function getStaticPaths() {
+  return ["tech", "life", "notes", "work"].map((tag) => ({ params: { tag } }));
+}
+
+const tags = ["tech", "life", "notes", "work"] as const;
+
+const { tag } = Astro.params;
+const posts = (await getPublished()).filter((post) => tag && post.data.tags.includes(tag as (typeof tags)[number]));
+---
+
+<Base title={`${tag} · Writing · Taamir Khan`} description={`Writing tagged ${tag}.`}>
+  <header class="blog-head">
+    <h1 class="display">{tag}</h1>
+    <p><a href="/blog">All writing</a></p>
+  </header>
+  {
+    posts.length === 0 ? (
+      <p class="empty">First posts coming soon. <a href="/rss.xml">RSS</a></p>
+    ) : (
+      posts.map((post) => (
+        <a class="post-row" href={`/blog/${post.id}`}>
+          <span class="mono">{formatDay(post.data.date)}</span>
+          <span class="post-title">{post.data.title}</span>
+          <span class="mono">{readingMinutes(post.body)} min</span>
+        </a>
+      ))
+    )
+  }
+</Base>

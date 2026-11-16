@@ -11,12 +11,12 @@ export interface ChartRow {
 const HEIGHT = 248;
 
 /** Build-time stem chart. Values must already be on one scale. */
-export function stemChart(rows: ChartRow[]): string {
+export function stemChart(rows: ChartRow[], title: string, description: string): string {
   if (rows.length === 0) throw new Error("Chart has no rows");
   if (rows.some((row) => row.value > 1_000_000)) {
     throw new Error("A value on this scale would squash the other bars");
   }
-  if (rows.length > 2) return horizontalChart(rows);
+  if (rows.length > 2) return horizontalChart(rows, title, description);
   const width = 360;
   const max = Math.max(...rows.map((row) => row.value));
   const plotLeft = 32;
@@ -45,13 +45,15 @@ export function stemChart(rows: ChartRow[]): string {
     })
     .join("");
   return `<svg class="chart" viewBox="0 0 ${width} ${HEIGHT}" role="img">
+    <title>${escapeXml(title)}</title>
+    <desc>${escapeXml(description)}</desc>
     <line class="baseline" x1="${plotLeft}" y1="${baseline}" x2="${plotRight}" y2="${baseline}" />
     <text class="tick zero" font-size="13" x="4" y="${baseline + 4}">0</text>
     ${stems}
   </svg>`;
 }
 
-function horizontalChart(rows: ChartRow[]): string {
+function horizontalChart(rows: ChartRow[], title: string, description: string): string {
   const width = 360;
   const rowH = 40;
   const height = 16 + rows.length * rowH;
@@ -73,6 +75,8 @@ function horizontalChart(rows: ChartRow[]): string {
     })
     .join("");
   return `<svg class="chart" viewBox="0 0 ${width} ${height}" role="img">
+    <title>${escapeXml(title)}</title>
+    <desc>${escapeXml(description)}</desc>
     <line class="baseline" x1="${barX}" y1="12" x2="${barX}" y2="${height - 8}" />
     ${body}
   </svg>`;

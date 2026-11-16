@@ -1,0 +1,46 @@
+---
+import { showShelf } from "../content/site";
+
+const links = [
+  { href: "/#work", label: "Work" },
+  { href: "/#projects", label: "Projects" },
+  { href: "/blog", label: "Writing" },
+  ...(showShelf ? [{ href: "/#play", label: "Play" }] : []),
+  { href: "/#contact", label: "Contact" },
+];
+---
+
+<header class="mast">
+  <a class="brand" href="/">
+    <span class="brand-dot" aria-hidden="true"></span>
+    Taamir Khan
+  </a>
+  <nav class="desktop-nav" aria-label="Sections">
+    {links.map((link) => <a href={link.href}>{link.label}</a>)}
+  </nav>
+  <button class="menu-button" type="button" popovertarget="site-menu">Menu</button>
+  <details class="menu-fallback">
+    <summary>Menu</summary>
+    <nav aria-label="Sections">
+      {links.map((link) => <a href={link.href}>{link.label}</a>)}
+    </nav>
+  </details>
+  <button class="theme" type="button" data-theme-toggle>Theme</button>
+  <button class="help" type="button" popovertarget="shortcuts" aria-label="Keyboard shortcuts">?</button>
+</header>
+<nav id="site-menu" class="menu-pop" popover aria-label="Sections">
+  {links.map((link) => <a href={link.href}>{link.label}</a>)}
+</nav>
+<div id="shortcuts" class="help-pop" popover>
+  <p class="kicker" id="shortcuts-title">Shortcuts</p>
+  <ul>
+    <li><kbd>?</kbd> Open or close this list</li>
+    <li><kbd>g</kbd> then <kbd>w</kbd> Work</li>
+    <li><kbd>g</kbd> then <kbd>p</kbd> Projects</li>
+    <li><kbd>g</kbd> then <kbd>b</kbd> Writing</li>
+    {showShelf && <li><kbd>g</kbd> then <kbd>s</kbd> Shelf</li>}
+    <li><kbd>t</kbd> Theme</li>
+    <li><kbd>/</kbd> Search posts</li>
+    <li><kbd>Esc</kbd> Close</li>
+  </ul>
+</div>

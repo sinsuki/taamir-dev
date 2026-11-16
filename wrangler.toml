@@ -1,0 +1,13 @@
+name = "taamir-dev"
+compatibility_date = "2026-11-16"
+pages_build_output_dir = "dist"
+
+[vars]
+SPOTIFY_CLIENT_ID = "90467d70b7ac4d80bf3ed272b25861a4"
+
+[[env.production.kv_namespaces]]
+binding = "SPOTIFY_KV"
+id = "f18709df6f6340c3a018710d035c021f"
+
+[env.production.vars]
+SPOTIFY_CLIENT_ID = "90467d70b7ac4d80bf3ed272b25861a4"

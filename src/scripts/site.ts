@@ -1,119 +1,177 @@
+type Mode = "system" | "light" | "dark";
+type Payload = {
+  state?: string;
+  title?: string;
+  artist?: string;
+  album?: string;
+  url?: string;
+  art?: string;
+  playedAgoMinutes?: number | null;
+};
+
+const modes: Mode[] = ["system", "light", "dark"];
+
 export function initSite(): void {
+  const toggle = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+  toggle?.addEventListener("click", () => cycleTheme());
+  document.addEventListener("keydown", onKey);
+  document.addEventListener("visibilitychange", () => {
+    document.documentElement.classList.toggle("paused", document.visibilityState === "hidden");
+  });
+  for (const button of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
+    button.addEventListener("click", () => copyText(button));
+  }
+  const search = document.querySelector<HTMLInputElement>("#post-search");
+  search?.addEventListener("input", () => filterPosts(search.value));
+  for (const node of document.querySelectorAll<HTMLElement>("[data-vt]")) {
+    const name = node.dataset.vt;
+    if (name) node.style.viewTransitionName = name;
+  }
+  const start = () => {
+    void refreshNow();
+    window.setInterval(() => {
+      if (document.visibilityState === "visible") void refreshNow();
+    }, 60_000);
+  };
+  if ("requestIdleCallback" in window) requestIdleCallback(start);
+  else window.setTimeout(start, 300);
+}
+
+function cycleTheme(): void {
   const root = document.documentElement;
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!reduce) {
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => root.classList.add("theme-ready"));
-    });
-  }
-
-  const toggle = document.querySelector<HTMLButtonElement>("#theme-toggle");
-  const syncPressed = () => {
-    const dark = root.getAttribute("data-theme") === "dark";
-    toggle?.setAttribute("aria-pressed", dark ? "true" : "false");
-  };
-  syncPressed();
-  toggle?.addEventListener("click", () => {
-    setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
-    syncPressed();
-  });
-
-  const dialog = document.querySelector<HTMLDialogElement>("#shortcuts");
-  const close = document.querySelector<HTMLButtonElement>("#shortcuts-close");
-  let lastFocus: HTMLElement | null = null;
-  const closeShortcuts = () => {
-    if (!dialog?.open) return;
-    dialog.close();
-    lastFocus?.focus();
-  };
-  const openShortcuts = () => {
-    if (!dialog || dialog.open) return;
-    lastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    dialog.showModal();
-    close?.focus();
-  };
-  close?.addEventListener("click", closeShortcuts);
-  dialog?.addEventListener("close", () => lastFocus?.focus());
-
-  let pendingG = false;
-  let timer = 0;
-  document.addEventListener("keydown", (event) => {
-    const target = event.target;
-    if (target instanceof HTMLElement && target.closest("input, textarea, select, [contenteditable='true']")) {
-      return;
-    }
-    if (event.key === "?" || (event.key === "/" && event.shiftKey)) {
-      event.preventDefault();
-      if (dialog?.open) closeShortcuts();
-      else openShortcuts();
-      return;
-    }
-    if (dialog?.open) return;
-    if (event.key === "t" || event.key === "T") {
-      event.preventDefault();
-      setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
-      syncPressed();
-      return;
-    }
-    if (event.key === "g" || event.key === "G") {
-      pendingG = true;
-      window.clearTimeout(timer);
-      timer = window.setTimeout(() => {
-        pendingG = false;
-      }, 800);
-      return;
-    }
-    if (pendingG && (event.key === "p" || event.key === "P" || event.key === "c" || event.key === "C")) {
-      event.preventDefault();
-      pendingG = false;
-      const id = event.key.toLowerCase() === "p" ? "projects" : "contact";
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.scrollIntoView();
-      if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1");
-      el.focus();
-      return;
-    }
-    pendingG = false;
-  });
-
-  const figures = document.querySelectorAll<HTMLElement>(".figure");
-  const figureObserver = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        entry.target.classList.add("is-in", "is-drawn");
-        figureObserver.unobserve(entry.target);
-      }
-    },
-    { threshold: 0.2 },
-  );
-  for (const figure of figures) {
-    const rect = figure.getBoundingClientRect();
-    const inView = rect.top < window.innerHeight && rect.bottom > 0;
-    if (!reduce && !inView) figure.classList.add("is-pending");
-    figureObserver.observe(figure);
-  }
-
-  const play = document.querySelector("#play");
-  if (play) {
-    const toyObserver = new IntersectionObserver((entries) => {
-      if (!entries.some((entry) => entry.isIntersecting)) return;
-      toyObserver.disconnect();
-      void import("./transfer-toy").then((mod) => mod.initTransferToy());
-    });
-    toyObserver.observe(play);
+  const current: Mode = root.dataset.theme === "light" || root.dataset.theme === "dark" ? root.dataset.theme : "system";
+  const next = modes[(modes.indexOf(current) + 1) % modes.length] ?? "system";
+  if (next === "system") {
+    delete root.dataset.theme;
+    localStorage.removeItem("theme");
+  } else {
+    root.dataset.theme = next;
+    localStorage.setItem("theme", next);
   }
 }
 
-function setTheme(theme: "light" | "dark"): void {
-  document.documentElement.setAttribute("data-theme", theme);
-  try {
-    localStorage.setItem("theme", theme);
-  } catch {
-    /* storage can be blocked; the choice still applies for this view */
+let armed = false;
+let armTimer = 0;
+
+function onKey(event: KeyboardEvent): void {
+  const target = event.target;
+  const typing =
+    target instanceof HTMLElement &&
+    (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
+  if (event.key === "Escape") return;
+  if (typing) return;
+  if (event.key === "?") {
+    event.preventDefault();
+    document.getElementById("shortcuts")?.togglePopover();
+    return;
   }
-  document
-    .querySelector('meta[name="theme-color"]')
-    ?.setAttribute("content", theme === "dark" ? "#171512" : "#F5F0E6");
+  if (event.key === "t" && !event.metaKey && !event.ctrlKey && !event.altKey) {
+    cycleTheme();
+    return;
+  }
+  if (event.key === "/" && location.pathname.startsWith("/blog")) {
+    const box = document.querySelector<HTMLInputElement>("#post-search");
+    if (box) {
+      event.preventDefault();
+      box.focus();
+    }
+    return;
+  }
+  if (event.key === "g" && !event.metaKey && !event.ctrlKey) {
+    armed = true;
+    window.clearTimeout(armTimer);
+    armTimer = window.setTimeout(() => {
+      armed = false;
+    }, 1000);
+    return;
+  }
+  if (!armed) return;
+  armed = false;
+  const place = event.key === "w" ? "work" : event.key === "p" ? "projects" : event.key === "s" ? "play" : "";
+  if (event.key === "b") {
+    location.href = "/blog";
+    return;
+  }
+  if (!place || !document.getElementById(place)) return;
+  if (location.pathname === "/") location.hash = place;
+  else location.href = `/#${place}`;
+}
+
+async function copyText(button: HTMLButtonElement): Promise<void> {
+  const value = button.dataset.copy;
+  if (!value) return;
+  try {
+    await navigator.clipboard.writeText(value);
+  } catch {
+    return;
+  }
+  const previous = button.textContent;
+  button.textContent = "copied";
+  window.setTimeout(() => {
+    button.textContent = previous;
+  }, 1200);
+}
+
+function filterPosts(query: string): void {
+  const needle = query.trim().toLowerCase();
+  for (const row of document.querySelectorAll<HTMLElement>(".post-row")) {
+    const text = row.textContent?.toLowerCase() ?? "";
+    row.hidden = needle.length > 0 && !text.includes(needle);
+  }
+}
+
+async function refreshNow(): Promise<void> {
+  const root = document.querySelector<HTMLElement>("[data-now-playing]");
+  if (!root) return;
+  try {
+    const response = await fetch("/api/now-playing");
+    const payload = (await response.json()) as Payload;
+    paintNow(root, payload);
+  } catch {
+    paintNow(root, { state: "off" });
+  }
+}
+
+function paintNow(root: HTMLElement, payload: Payload): void {
+  if (payload.state !== "playing" && payload.state !== "recent") {
+    root.dataset.state = "off";
+    return;
+  }
+  root.dataset.state = payload.state;
+  const label = root.querySelector("[data-air-label]");
+  if (label) label.textContent = payload.state === "playing" ? "On air" : "Last played";
+  const track = root.querySelector("[data-air-track]");
+  if (track) {
+    const when = payload.state === "recent" ? ` · ${ago(payload.playedAgoMinutes)}` : "";
+    track.textContent = `${payload.title ?? ""} — ${payload.artist ?? ""}${when}`;
+  }
+  const link = root.querySelector<HTMLAnchorElement>("[data-air-url]");
+  const pop = document.querySelector<HTMLAnchorElement>("[data-pop-link]");
+  const href = payload.url || "https://open.spotify.com";
+  if (link) {
+    link.href = href;
+    link.hidden = false;
+  }
+  if (pop) pop.href = href;
+  const title = document.querySelector("[data-pop-title]");
+  const by = document.querySelector("[data-pop-by]");
+  const album = document.querySelector("[data-pop-album]");
+  if (title) title.textContent = payload.title ?? "";
+  if (by) by.textContent = payload.artist ?? "";
+  if (album) album.textContent = payload.album ?? "";
+  const art = document.querySelector<HTMLImageElement>("[data-art]");
+  if (art && payload.art) {
+    art.src = payload.art;
+    art.alt = "";
+    art.hidden = false;
+  }
+}
+
+function ago(minutes: number | null | undefined): string {
+  if (minutes == null) return "";
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 48) return `${hours}h ago`;
+  return `${Math.round(minutes / 1440)}d ago`;
 }

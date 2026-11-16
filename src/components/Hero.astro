@@ -1,0 +1,43 @@
+---
+import { getPublished } from "../lib/posts";
+import { email, intro, introNote, jobs, showShelf, shelfItems } from "../content/site";
+import { projects } from "../content/projects";
+
+const posts = await getPublished();
+const rows = [
+  { numeral: "I", label: "Work", href: "#work", count: `${jobs.length} roles` },
+  { numeral: "II", label: "Projects", href: "#projects", count: `${projects.length} builds` },
+  { numeral: "III", label: "Writing", href: "#writing", count: `${posts.length} posts` },
+  ...(showShelf
+    ? [{ numeral: "IV", label: "Play", href: "#play", count: `${shelfItems.length} objects` }]
+    : []),
+  { numeral: showShelf ? "V" : "IV", label: "Contact", href: "#contact", count: "email" },
+];
+---
+
+<section class="hero" aria-labelledby="intro-heading">
+  <div class="sun" aria-hidden="true"></div>
+  <div class="hero-copy">
+    <h1 id="intro-heading" class="intro display">{intro}</h1>
+    <p class="lead">{introNote}</p>
+    <p class="hero-links">
+      <a href={`mailto:${email}`}>Email me</a>
+    </p>
+  </div>
+  <div class="hero-contents">
+    <ol class="contents">
+      {
+        rows.map((row) => (
+          <li>
+            <a class="display-link" href={row.href}>
+              <span class="num">{row.numeral}</span>
+              <span class="name">{row.label}</span>
+              <span class="leader" aria-hidden="true"></span>
+              <span class="count">{row.count}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>

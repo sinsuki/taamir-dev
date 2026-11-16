@@ -1,0 +1,10 @@
+---
+import { shelfItems } from "../../content/site";
+
+interface Props {
+  toy: string;
+}
+const item = shelfItems.find((entry) => entry.slug === Astro.props.toy);
+---
+
+{item ? <p><a href={`/play/${item.slug}`}>{item.title}</a></p> : <p>This object isn't on the shelf.</p>}

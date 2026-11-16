@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 
 const root = path.resolve("dist");
@@ -29,6 +29,14 @@ const forbid = [
   /\bTX\b/,
   /\bCT\b/,
   /\bVA\b/,
+  /understanding people/i,
+  /explaining clearly/i,
+  /passionate/i,
+  /github\.com\/taamir-khan/i,
+  /\btimezone\b/i,
+  /\bbased in\b/i,
+  /\(\d{3}\)\s*\d{3}/,
+  /\b\d{3}[-.]\d{3}[-.]\d{4}\b/,
 ];
 for (const pattern of forbid) {
   if (pattern.test(all)) failures.push(`Forbidden match ${pattern}`);
@@ -76,15 +84,27 @@ if (!svgs.some((svg) => svg.includes("472,600") || svg.includes(">472600<"))) {
 
 const incident = html.slice(incidentStart);
 const planned = incident.match(/stamp-planned/g) ?? [];
-if (planned.length !== 1) failures.push(`Expected 1 planned stamp, found ${planned.length}`);
+if (planned.length !== 0) failures.push(`Expected 0 planned stamps, found ${planned.length}`);
 const incidentShipped = incident.match(/stamp-shipped/g) ?? [];
-if (incidentShipped.length < 5) {
-  failures.push(`Expected 5 shipped incident stamps, found ${incidentShipped.length}`);
+if (incidentShipped.length !== 6) {
+  failures.push(`Expected 6 shipped incident stamps, found ${incidentShipped.length}`);
 }
 if (!html.includes("20/20 correct root cause")) failures.push("Missing end-to-end root cause result");
 if (!html.includes("157") || !html.includes("6.80")) failures.push("Missing milestone 5 test count");
-if (html.includes("github.com/taamir-khan")) failures.push("Old GitHub profile URL remains");
-if (html.includes("understanding people")) failures.push("Removed copy remains");
+if (!html.includes("6.57") || !html.includes("1.99") || !html.includes("1.985")) {
+  failures.push("Missing clean-clone headline");
+}
+if (!html.includes("I'm Taamir Khan, a software engineer currently working on banking software at Argo Data.")) {
+  failures.push("Missing the chosen intro");
+}
+if (html.includes('id="play"')) failures.push("Empty shelf is on the page");
+if (!html.includes("First posts coming soon.")) failures.push("Missing empty writing state");
+const preloads = [...html.matchAll(/<link\b[^>]*rel="preload"[^>]*>/g)].map((match) => match[0]);
+if (preloads.length !== 1 || !preloads[0].includes("fraunces")) {
+  failures.push(`Preload should be Fraunces only, found ${preloads.join(" | ") || "none"}`);
+}
+if (!existsSync(path.join(root, "rss.xml"))) failures.push("Missing rss.xml");
+if (!existsSync(path.join(root, "blog", "index.html"))) failures.push("Missing blog index");
 
 if (failures.length > 0) {
   console.error(failures.join("\n"));
