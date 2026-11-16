@@ -76,7 +76,15 @@ if (!svgs.some((svg) => svg.includes("472,600") || svg.includes(">472600<"))) {
 
 const incident = html.slice(incidentStart);
 const planned = incident.match(/stamp-planned/g) ?? [];
-if (planned.length < 4) failures.push(`Expected 4 planned stamps, found ${planned.length}`);
+if (planned.length !== 1) failures.push(`Expected 1 planned stamp, found ${planned.length}`);
+const incidentShipped = incident.match(/stamp-shipped/g) ?? [];
+if (incidentShipped.length < 5) {
+  failures.push(`Expected 5 shipped incident stamps, found ${incidentShipped.length}`);
+}
+if (!html.includes("20/20 correct root cause")) failures.push("Missing end-to-end root cause result");
+if (!html.includes("157") || !html.includes("6.80")) failures.push("Missing milestone 5 test count");
+if (html.includes("github.com/taamir-khan")) failures.push("Old GitHub profile URL remains");
+if (html.includes("understanding people")) failures.push("Removed copy remains");
 
 if (failures.length > 0) {
   console.error(failures.join("\n"));

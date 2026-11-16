@@ -35,7 +35,7 @@ const diagram = incidentDiagram();
   This is a Python simulation of a microservice outage. Gateway, orders, inventory, and payments
   emit OpenTelemetry traces, logs, and metrics. A fault injector plants four faults as real commits
   in a sample service history, so git blame can find them. It is the base for a multi-agent
-  root-cause system. Milestones 1 and 2 are built. The later agents are not.
+  root-cause system. Milestones 1 through 5 are built. A README with a demo is still planned.
 </p>
 <p>{incidentNotes.faultDecision}</p>
 <p>{incidentNotes.selfTime}</p>
@@ -53,13 +53,12 @@ const diagram = incidentDiagram();
   ))
 }
 <p class="note">
-  Status is per milestone. Code Archaeologist, the runbook agent, the RCA report, and the README
-  with a demo are planned, not shipped.
+  Status is per milestone. The README with a demo is planned. The other milestones are shipped.
 </p>
 
 <figure class="figure">
   <div aria-hidden="true" set:html={diagram} />
-  <figcaption>Fig. 4 — Incident responder. Planned nodes are dashed and labeled.</figcaption>
+  <figcaption>Fig. 4 — Incident responder. Every agent node is shipped.</figcaption>
 </figure>
 
 <figure class="figure">
@@ -139,7 +138,16 @@ const diagram = incidentDiagram();
     }
   </tbody>
 </table>
-<p class="note">tests-by-milestone.csv. These are the recorded runs, not a sum of the two rows.</p>
+<p class="note">
+  tests-by-milestone.csv. Suite size after each milestone, not a sum across rows. Milestone 5 is 157
+  tests in 6.80 s.
+</p>
+<p>
+  {incidentNotes.e2eResult}
+</p>
+<p class="note">
+  Project notes, milestone 5. Measured wall time {incidentNotes.e2eWall}. {incidentNotes.evalEasyMd}
+</p>
 
 <p>
   The Log Forensics eval ran {evalData.cases} cases ({evalData.faults} faults, seeds {evalData.seeds.join(", ")}).

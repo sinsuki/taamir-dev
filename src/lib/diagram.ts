@@ -131,7 +131,7 @@ export function incidentDiagram(): string {
   return renderFlow(
     "incident",
     "Incident responder architecture",
-    "The simulator and Log Forensics are shipped. Code Archaeologist, the runbook agent, and the RCA report are planned.",
+    "The simulator, Log Forensics, Code Archaeologist, the runbook agent, and the citation-checked RCA report are shipped.",
     [
       { t: "group-open", label: "Simulator (shipped)" },
       { t: "node", lines: ["gateway"] },
@@ -150,11 +150,11 @@ export function incidentDiagram(): string {
       { t: "edge", lines: [] },
       { t: "node", lines: ["Citation check (shipped)"] },
       { t: "edge", lines: [] },
-      { t: "node", lines: ["Code Archaeologist (planned)"], planned: true },
+      { t: "node", lines: ["Code Archaeologist (shipped)"] },
       { t: "edge", lines: [] },
-      { t: "node", lines: ["Runbook agent (planned)"], planned: true },
+      { t: "node", lines: ["Runbook agent (shipped)"] },
       { t: "edge", lines: [] },
-      { t: "node", lines: ["Citation-checked RCA report", "(planned)"], planned: true },
+      { t: "node", lines: ["Citation-checked RCA report", "(shipped)"] },
     ],
   );
 }

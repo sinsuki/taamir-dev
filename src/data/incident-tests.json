@@ -8,5 +8,20 @@
     "milestone": "2_log_forensics",
     "tests_passed": 49,
     "seconds": "1.30"
+  },
+  {
+    "milestone": "3_code_archaeologist",
+    "tests_passed": 91,
+    "seconds": "3.84"
+  },
+  {
+    "milestone": "4_runbook",
+    "tests_passed": 136,
+    "seconds": "5.02"
+  },
+  {
+    "milestone": "5_rca_orchestrator",
+    "tests_passed": 157,
+    "seconds": "6.80"
   }
 ]
